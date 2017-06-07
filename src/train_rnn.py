@@ -1,34 +1,35 @@
 import numpy as np
 import tensorflow as tf
-import os
-import math
-import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
-from tensorflow.contrib import rnn
+from tensorflow.contrib import rnn, layers
 
-mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
-
+# model parameters
 epochs = 3
-sequence_len = 30 # can this vary in size?
+sequence_len = 100 # can this vary in size?
 batch_size = 200
 alphabet_size = 98 # includes letters, numbers, and punctuation
-chunk_size = 28
+internal_size = 512
 n_layers = 3
 learning_rate = 0.001 # look into adaptive learning rates
 dropout = 0.8
 
-x = tf.placeholder('float', [None, n_chunks, chunk_size])
-y = tf.placeholder('float')
+# the model
+lr = tf.placeholder(tf.float32, name='lr')  # learning rate
+pkeep = tf.placeholder(tf.float32, name='pkeep')  # dropout parameter
+batchsize = tf.placeholder(tf.int32, name='batchsize')
 
-def recurrent_neural_network(X):
-    layer = {'weights':tf.Variable(tf.random_normal([rnn_size, n_classes])),
-                'biases':tf.Variable(tf.random_normal([n_classes]))}
+# inputs
+X = tf.placeholder(tf.uint8, [None, None], name='X')    # [ batch_size, sequence_len ]
+Xo = tf.one_hot(X, alphabet_size, 1.0, 0.0)             # [ batch_size, sequence_len, alphabet_size ]
+# expected outputs = same sequence shifted by 1 since we are trying to predict the next character
+Y_ = tf.placeholder(tf.uint8, [None, None], name='Y_')  # [ batch_size, sequence_len ]
+Yo_ = tf.one_hot(Y_, alphabet_size, 1.0, 0.0)               # [ batch_size, sequence_len, alphabet_size ]
+# input state
+Hin = tf.placeholder(tf.float32, [None, internal_size*n_layers], name='Hin')  # [ batch_size, internal_size * n_layers]
 
-    X = tf.transpose(X, [1,0,2])
-    X = tf.reshape(X, [-1, chunk_size])
-    X = tf.split(0, n_chunks, X)
+def recurrent_neural_network(X, Xo):
+    cells = [layers.]
 
-    lstm_cell = rnn.BasicLSTMCell(rnn_size)
+    lstm_cell = rnn.BasicLSTMCell(internal_size)
     outputs, states = rnn.rnn(lstm_cell, X, dtype=tf.float32)
 
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
