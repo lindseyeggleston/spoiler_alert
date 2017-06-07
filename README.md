@@ -1,10 +1,9 @@
 # Spoiler Alert!
 
 ### Project Overview
-I will use a recurrent neural network (RNN) and long short term memory (LSTM) to generate new believable dialogue between characters from the Song of Ice and Fire book series.
+I will use a recurrent neural network (RNN) and long short term memory (LSTM) model to generate new believable dialogue between characters as well as plot from the Song of Ice and Fire book series.
 
-speech recognition
-language modeling
+language modeling   
 lstm allows for more contextual memory
 
 
@@ -17,20 +16,26 @@ Stage 1: Problem Framing
 - Product: Clear and concise project objective in readme file and comprehension project timeline
 
 Stage 2: Data Preprocessing
-- Extract character specific vocabulary and term frequencies from their respective chapters
+- Extract character specific vocabulary from their respective chapters
+- Extract character interations and script
+- tokenization and lemmatization
 - tf-idf with nltk and gensim
-- Product:
+- Product: vectorized sequences of
 
 Stage 3: RNN
+- Construct basic 3-layer rnn
+- Experiment with dropout
 - RMSProps or Adam adaptive learning rate methods
+- Train on passages and script to determine best input
 - Product: a trained rnn model
 
 Stage 4: Test Model
-- vectorize new data (scenarios for character dialogue)
+- Hold out one book from training to predict on
+- Vectorize new data (scenarios for character dialogue)
 - Product:
 
 Phase 5: Web App and Visualization
-- S
+- Graph theory to visualize character interactions
 - Product:
 
 
