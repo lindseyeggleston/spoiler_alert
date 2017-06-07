@@ -23,6 +23,7 @@ Stage 2: Data Preprocessing
 - Product: vectorized sequences of
 
 Stage 3: RNN
+- Define parameters
 - Construct basic 3-layer rnn
 - Experiment with dropout
 - RMSProps or Adam adaptive learning rate methods
@@ -42,7 +43,8 @@ Phase 5: Web App and Visualization
 
 ### References:
 
-- [RNN overview](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)
+- [RNN overview](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) by Andrej Karpathy
+- [RNNs in depth](https://arxiv.org/pdf/1506.00019.pdf) by Lipton, Berkowitz, and Elkan
 - [RNN for Shakespeare](https://github.com/martin-gorner/tensorflow-rnn-shakespeare/blob/master/rnn_train.py): example code
 - [RNN w/ LSTM](https://pythonprogramming.net/rnn-tensorflow-python-machine-learning-tutorial/): more example code
 - [TensorFlow](https://www.tensorflow.org/tutorials/recurrent)
