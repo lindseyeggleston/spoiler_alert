@@ -6,12 +6,12 @@ import data_processing as dp
 
 # model hyper parameters
 epochs = 10
-seq_length = 100  # length of chunk fed into the RNN
+seq_length = 30  # length of chunk fed into the RNN
 batch_size = 200
 chars = 98  # number of characters; includes letters, numbers, and punctuation
 internal_size = 512  # size of hidden layer of neurons
-n_layers = 7
-learning_rate = 0.001  # look into adaptive learning rates
+n_layers = 3
+learning_rate = 0.01  # look into adaptive learning rates
 dropout = 0.8
 
 # the model
@@ -32,7 +32,7 @@ Hs = tf.placeholder(tf.float32, [None, internal_size*n_layers], name='Hs')
 
 def recurrent_neural_network(X):
     '''
-    Constructs a basic recurrent neural network with n_layers (specified above in model parameters)
+    Constructs a character-level recurrent neural network with n_layers
 
     Parameters
     ----------
@@ -40,8 +40,9 @@ def recurrent_neural_network(X):
 
     Returns
     -------
-    A predicted sequence Y_
+    A predicted sequence, Y_, and the hidden states
     '''
+    print('Building a model...')
     lstm_cells = [rnn.BasicLSTMCell(internal_size) for _ in range(n_layers)]
     dropout_cells = [rnn.DropoutWrapper(cell,input_keep_prob=pkeep) for cell \
                         in lstm_cells]
@@ -50,22 +51,21 @@ def recurrent_neural_network(X):
 
     Y_, H = tf.nn.dynamic_rnn(multicell, Xo, dtype=tf.float32, \
                         initial_state=Hs)
-    H = tf.identity(H, name='H')
-    return Y_
+    return Y_, H
 
 def train_neural_network(X, n_epochs=epochs):
-    Y_initial = recurrent_neural_network(X)
-    Y_flat = tf.reshape(Y_initial, [-1, internal_size])    # [BATCHSIZE x SEQLEN, INTERNALSIZE]
-    Y_logits = layers.fully_connected(Y_flat, alphabet_size, activation_fn=None)     # [BATCHSIZE x SEQLEN, ALPHASIZE]
-    Y_flat_ = tf.reshape(Yo, [-1, alphabet_size])     # [BATCHSIZE x SEQLEN, ALPHASIZE]
+    Y_initial, H = recurrent_neural_network(X)
+    Y_flat = tf.reshape(Y_initial, [-1, internal_size])  # [batch_size * seq_length, internal_size]
+    Y_logits = layers.fully_connected(Y_flat, alphabet_size, activation_fn=None)   # [batch_size * seq_length, chars]
+    Y_flat_ = tf.reshape(Yo, [-1, alphabet_size])     # [batch_size * seq_length, chars]
 
-    cost = tf.nn.softmax_cross_entropy_with_logits(logits=Y_logits, labels=Y_flat_)  # [BATCHSIZE x SEQLEN]
-    cost = tf.reshape(loss, [batchsize, -1])      # [ BATCHSIZE, SEQLEN ]
+    cost = tf.nn.softmax_cross_entropy_with_logits(logits=Y_logits, labels=Y_flat_)  # [batch_size * seq_length]
+    cost = tf.reshape(loss, [batchsize, -1])      # [batch_size, seq_length]
     optimizer = tf.train.AdamOptimizer(lr).minimize(cost)
 
-    Yo_hat = tf.nn.softmax(Y_logits, name='Yo_hat')        # [BATCHSIZE x SEQLEN, ALPHASIZE]
-    Y_hat = tf.argmax(Yo_hat, 1)                          # [BATCHSIZE x SEQLEN]
-    Y_hat = tf.reshape(Y_hat, [batchsize, -1], name="Y_hat")  # [BATCHSIZE, SEQLEN]
+    Yo_hat = tf.nn.softmax(Y_logits, name='Yo_hat')        # [batch_size * seq_length, chars]
+    Y_hat = tf.argmax(Yo_hat, 1)                          # [batch_size * seq_length]
+    Y_hat = tf.reshape(Y_hat, [batchsize, -1], name="Y_hat")  # [batch_size, seq_length]
 
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
@@ -75,7 +75,7 @@ def train_neural_network(X, n_epochs=epochs):
             for _ in range(int()):
                 feed_dict = {x: epoch_x, y: epoch_y, Hin: istate, lr: learning_rate, pkeep: dropout, batchsize: batch_size}
                 epoch_x, epoch_y = dp.create_minibatch(batch_size)
-                epoch_x = epoch_x.reshape((batch_size, n_chunks, chunk_size))
+                epoch_x = epoch_x.reshape((batch_size, n_chunks, seq_length))
                 _, c = sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
                 epoch_loss += c
 
