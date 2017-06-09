@@ -89,4 +89,6 @@ def train_neural_network(X, n_epochs=epochs):
         print('Accuracy:',accuracy.eval({x:mnist.test.images.reshape((-1, n_chunks,\
                 chunk_size)), y:mnist.test.labels}))
 
-train_neural_network(x)
+with open('../data/SOIF/AGameOfThrones.txt') as f:
+    text = f.read()
+train_neural_network(text)
