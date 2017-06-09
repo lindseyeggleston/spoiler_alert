@@ -9,14 +9,14 @@ import pickle
 
 # model hyper parameters
 epochs = 10
-seq_length = 25
+seq_length = 30
 n_layers = 3
 dropout = 0.2
-batch_size = 200
+batch_size = 500
 learning_rate = 0.01
-internal_size = 128
+internal_size = 512
 
-def train_rnn(raw_data):
+def train_rnn(text):
     '''
     Trains a word-level recurrent neural network using LSTM architecture on text
     corpora.
@@ -25,8 +25,9 @@ def train_rnn(raw_data):
     ---------
     raw_data: text corpora
     '''
-
-    words = set(raw_data.strip('\n').split())
+    text = text.split(' ')
+    words = set(text)
+    vocab_length = len(words)
 
     word_indices = dict((word, idx) for idx, word in enumerate(words))
     indices_word = dict((idx, word) for idx, word in enumerate(words))
@@ -36,11 +37,11 @@ def train_rnn(raw_data):
 
     rnn = Sequential()
     for i in range(n_layers-1):
-        rnn.add(LSTM(internal_size, return_sequences=True, input_shape=(batch_size, len(words))))
+        rnn.add(LSTM(internal_size, return_sequences=True, input_shape=(seq_length, vocab_length)))
         rnn.add(Dropout(dropout))
     rnn.add(LSTM(internal_size, return_sequences=False))
     rnn.add(Dropout(dropout))
-    rnn.add(Dense(len(words)))
+    rnn.add(Dense(vocab_length))
     rnn.add(Activation('softmax'))
 
     optimizer = RMSprop(lr=learning_rate)
@@ -61,7 +62,7 @@ def train_rnn(raw_data):
         for t, word in enumerate(sentence):
             X[i, t, word_indices[word]] = 1
         y[i, word_indices[next_words[i]]] = 1
-    model.fit(X, y, epochs=epochs, batch_size=batch_size)
+    rnn.fit(X, y, epochs=epochs, batch_size=batch_size)
 
     filename = '../model/rnn.pkl'
     with open(filename, 'w') as f:
