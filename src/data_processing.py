@@ -34,8 +34,10 @@ def text_to_vocab(text, vocab_length=None):
 def text_to_sequence(text):
     pass
 
-def create_minibatch(batchsize):
-    pass
+def create_minibatch(text, batch_size, seq_length, epochs):
+    data = np.array(text.strip('\n').split(' '))
+    num_batches = (data.size - 1) // (batch_size * seq_length)
+
 
 if __name__ == '__main__':
     with open('../data/SOIF/AGameOfThrones.txt') as f:
