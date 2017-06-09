@@ -25,7 +25,7 @@ Xo = tf.one_hot(X, chars, 1.0, 0.0)  # [batch_size, seq_length, chars]
 
 # expected outputs
 Y = tf.placeholder(tf.uint8, [None, None], name='Y_hat')  # [batch_size, >= seq_length]
-Yo = tf.one_hot(Y_, chars, 1.0, 0.0)  # [batch_size, seq_length, chars]
+Yo = tf.one_hot(Y, chars, 1.0, 0.0)  # [batch_size, seq_length, chars]
 
 # hidden state
 Hs = tf.placeholder(tf.float32, [None, internal_size*n_layers], name='Hs')
@@ -55,6 +55,7 @@ def recurrent_neural_network(X):
 
 def train_neural_network(X, n_epochs=epochs):
     Y_initial, H = recurrent_neural_network(X)
+
     Y_flat = tf.reshape(Y_initial, [-1, internal_size])  # [batch_size * seq_length, internal_size]
     Y_logits = layers.fully_connected(Y_flat, alphabet_size, activation_fn=None)   # [batch_size * seq_length, chars]
     Y_flat_ = tf.reshape(Yo, [-1, alphabet_size])     # [batch_size * seq_length, chars]
@@ -67,6 +68,7 @@ def train_neural_network(X, n_epochs=epochs):
     Y_hat = tf.argmax(Yo_hat, 1)                          # [batch_size * seq_length]
     Y_hat = tf.reshape(Y_hat, [batchsize, -1], name="Y_hat")  # [batch_size, seq_length]
 
+    print('Training...')
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
 

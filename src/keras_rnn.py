@@ -55,9 +55,9 @@ def train_rnn(text):
         sentences.append(text[i: i + seq_length])
         next_words.append(text[i + seq_length])
 
-    print('Vectorization...')
-    X = np.zeros((len(sentences), seq_length, len(words)), dtype=np.bool)
-    y = np.zeros((len(sentences), len(words)), dtype=np.bool)
+    print('Training...')
+    X = np.zeros((len(sentences), seq_length, len(words)))
+    y = np.zeros((len(sentences), len(words)))
     for i, sentence in enumerate(sentences):
         for t, word in enumerate(sentence):
             X[i, t, word_indices[word]] = 1
