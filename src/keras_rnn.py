@@ -1,14 +1,14 @@
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
-from keras.optimizers import RMSprop
+from keras.optimizers import Adam
 from keras.utils.data_utils import get_file
 import numpy as np
 import sys
 import pickle
 
 # model hyper parameters
-epochs = 10
+num_epochs = 10
 seq_length = 30
 n_layers = 3
 dropout = 0.2
@@ -16,7 +16,7 @@ batch_size = 500
 learning_rate = 0.01
 internal_size = 512
 
-def train_rnn(text):
+def train_rnn(raw_data):
     '''
     Trains a word-level recurrent neural network using LSTM architecture on text
     corpora.
@@ -25,7 +25,8 @@ def train_rnn(text):
     ---------
     raw_data: text corpora
     '''
-    text = text.split(' ')
+
+    text = raw_data.split(' ')
     words = set(text)
     vocab_length = len(words)
 
@@ -44,26 +45,15 @@ def train_rnn(text):
     rnn.add(Dense(vocab_length))
     rnn.add(Activation('softmax'))
 
-    optimizer = RMSprop(lr=learning_rate)
+    optimizer = Adam(lr=learning_rate)
     rnn.compile(optimizer=optimizer, loss='categorical_crossentropy')
 
-    #
-    step = 3
-    sentences = []
-    next_words = []
-    for i in range(0, len(text) - seq_length, step):
-        sentences.append(text[i: i + seq_length])
-        next_words.append(text[i + seq_length])
-
+    # Mini-batch stocastic
     print('Training...')
-    X = np.zeros((len(sentences), seq_length, len(words)))
-    y = np.zeros((len(sentences), len(words)))
-    for i, sentence in enumerate(sentences):
-        for t, word in enumerate(sentence):
-            X[i, t, word_indices[word]] = 1
-        y[i, word_indices[next_words[i]]] = 1
-    rnn.fit(X, y, epochs=epochs, batch_size=batch_size)
+    for X, y, epoch in create_minibatch(text, batch_size, seq_length, num_epochs):
+        rnn.fit(X, y, batch_size=batch_size, verbose=1)
 
+    # Save trained model to pickle file
     filename = '../model/rnn.pkl'
     with open(filename, 'w') as f:
         pickle.dump(model, f)

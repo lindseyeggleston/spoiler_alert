@@ -12,7 +12,7 @@ def file_to_text(filepath):
             text = t.read()
     return text
 
-def text_to_vocab(text, vocab_length=None):
+def text_to_vocab(text, vocab_length=8000):
     '''
     Learns the vocabulary within a text and refines the length to the most
     frequently used words
@@ -50,6 +50,7 @@ def create_minibatch(text, batch_size, seq_length, num_epochs):
     yields input matrix X for a single batch, expected output y, and the current epoch
     '''
     data = np.array(text.split(' '))
+    vocab = text_to_vocab(text)
     num_batches = data.size // (batch_size * seq_length)
 
     # Round and reshape data to be even with batch numbers

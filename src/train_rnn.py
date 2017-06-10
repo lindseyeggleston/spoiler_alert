@@ -86,8 +86,7 @@ def train_neural_network(X, n_epochs=epochs):
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
 
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        print('Accuracy:',accuracy.eval({x:mnist.test.images.reshape((-1, n_chunks,\
-                chunk_size)), y:mnist.test.labels}))
+
 
 with open('../data/SOIF/AGameOfThrones.txt') as f:
     text = f.read()
