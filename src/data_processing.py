@@ -9,7 +9,7 @@ def file_to_text(filepath):
         text = filepath.read().lower()
     elif os.path.isdir(filepath):
         with open(filepath + '/*.txt') as f:
-            text = t.read().lower()
+            text = t.read()
     return text
 
 def text_to_vocab(text, vocab_length=None):
