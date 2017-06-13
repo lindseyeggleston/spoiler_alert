@@ -4,11 +4,11 @@
 I will use a recurrent neural network (RNN) and long short term memory (LSTM) model to generate new believable dialogue between characters as well as plot from the Song of Ice and Fire book series.
 
 language modeling   
-lstm allows for more contextual memory
-Goal:
-Approach:
-Results:
-Link to visualization:
+lstm allows for more contextual memory  
+Goal:  
+Approach:  
+Results:  
+Link to visualization:  
 
 
 ### Approach
@@ -44,7 +44,7 @@ Phase 5: Web App and Visualization
 - Product:
 
 
-###Run the code
+### Run the code
 
 
 
