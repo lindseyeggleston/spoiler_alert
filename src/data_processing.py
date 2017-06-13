@@ -1,9 +1,6 @@
 import numpy as np
 import os
-from keras.preprocessing.text import text_to_word_sequence, one_hot
-from sklearn.feature_extraction.text import TfidfVectorizer
-from collections import OrderedDict, defaultdict, namedtuple
-from string import punctuation
+from collections import Counter
 from nltk.tokenize import word_tokenize
 
 def file_to_text(filepath):
