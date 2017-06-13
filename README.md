@@ -18,13 +18,13 @@ Stage 1: Problem Framing
 Stage 2: Data Preprocessing
 - Extract character specific vocabulary from their respective chapters
 - Extract character interations and script
-- tokenization and lemmatization
-- tf-idf with nltk and gensim
+- limit vocabulary to 8000 most frequently used words (TfidfVectorizer)
+- Tokenization with nltk (add unknown for token not in vocab and sentence start and end tokens)
 - Product: vectorized sequences of
 
 Stage 3: RNN
 - Define parameters
-- Construct basic 3-layer rnn
+- Construct framework 3-layer rnn model with lstm
 - Experiment with dropout
 - RMSProps or Adam adaptive learning rate methods
 - Train on passages and script to determine best input
@@ -45,6 +45,8 @@ Phase 5: Web App and Visualization
 
 - [RNN overview](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) by Andrej Karpathy
 - [RNNs in depth](https://arxiv.org/pdf/1506.00019.pdf) by Lipton, Berkowitz, and Elkan
+- [Language model RNN with python](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-2-implementing-a-language-model-rnn-with-python-numpy-and-theano/)
 - [RNN for Shakespeare](https://github.com/martin-gorner/tensorflow-rnn-shakespeare/blob/master/rnn_train.py): example code
 - [RNN w/ LSTM](https://pythonprogramming.net/rnn-tensorflow-python-machine-learning-tutorial/): more example code
 - [TensorFlow](https://www.tensorflow.org/tutorials/recurrent)
+- [Keras documentation](https://keras.io/)
