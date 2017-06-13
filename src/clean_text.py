@@ -111,7 +111,8 @@ def chapter_content(chapter_title, book_filepath, n_characters=1000):
 
 
 if __name__ == '__main__':
-
+    
+    # chapter titles for all 5 books
     chapter_set = set(["TYRION", "DAENERYS", "JON", "BRAN", "THE BLIND GIRL",\
         "DAVOS", "REEK", "THE WINDBLOWN", "THE WAYWARD BRIDE", "THE WATCHER",\
         "MELISANDRE", "THE PRINCE OF WINTERFELL", "THE TURNCLOAK", "THEON",\

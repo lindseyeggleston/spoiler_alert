@@ -41,7 +41,7 @@ def text_to_vocab(text, vocab_size=8000):
     vectorizer = TfidfVectorizer(max_features=vocab_size-1)
     vectorizer.fit(text)
     vocab = vectorizer.vocabulary_
-    if vocab_size not None:
+    if vocab_size != None:
         vocab['UNKNOWN_TOKEN'] = vocab_size - 1
     if len(vocab) < vocab_size:
         assert('The text contains {0} words. Please select a different vocab size'\
@@ -97,7 +97,7 @@ def create_minibatch(text, batch_size, seq_length, num_epochs, vocab_size=8000):
     --------
     yields input matrix X for a single batch, expected output y, and the current epoch
     '''
-    num_batches = len(text) // (batch_size * seq_length)
+    num_batches = (len(text) - 1) // (batch_size * seq_length)
 
     # Round and reshape data to be even with batch numbers
     rounded_data = num_batches * batch_size * seq_length
@@ -115,13 +115,37 @@ def create_minibatch(text, batch_size, seq_length, num_epochs, vocab_size=8000):
 
             yield X, y, epoch  # Generator
 
+def count_characters(text):
+    '''
+    Prints the number of different characters used in a text and creates a
+    dictionary of character indexes
+
+    Parameter
+    ---------
+    text: STR - text corpus
+
+    Returns
+    -------
+    a dictionary with chacters as keys and index numbers as values
+    '''
+    char_set = set([])
+    for char in text:
+        char_set.add(char)
+    print('This text contains {0} distinct characters'.format(len(char_set)))
+    char_dict = {char:i for i,char in enumerate(sorted(list(char_set)))}
+    return char_dict
+
+
 if __name__ == '__main__':
     with open('../../soif_data/text/book1.txt') as f:
         text = f.read()
-        text = ''.join(char for char in text if char not in punctuation)
-        raw_data = text.lower().split(' ')
-    new_text, vocab, unknown_tokens = text_to_vocab(raw_data)
+    #     text = ''.join(char for char in text if char not in punctuation)
+    #     raw_data = text.lower().split(' ')
+    # new_text, vocab, unknown_tokens = text_to_vocab(raw_data)
     # print('Length: ', len(vocab))
     # print(new_text[0:500])
     # print(unknown_tokens)
-    print(text_to_sequence(new_text, vocab))
+    # print(text_to_sequence(new_text, vocab))
+
+    char_dict = count_characters(text)
+    print(char_dict)
