@@ -5,6 +5,10 @@ I will use a recurrent neural network (RNN) and long short term memory (LSTM) mo
 
 language modeling   
 lstm allows for more contextual memory
+Goal:
+Approach:
+Results:
+Link to visualization:
 
 
 ### Approach
@@ -40,13 +44,16 @@ Phase 5: Web App and Visualization
 - Product:
 
 
+###Run the code
+
+
 
 ### References:
 
 - [RNN overview](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) by Andrej Karpathy
 - [RNNs in depth](https://arxiv.org/pdf/1506.00019.pdf) by Lipton, Berkowitz, and Elkan
 - [Language model RNN with python](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-2-implementing-a-language-model-rnn-with-python-numpy-and-theano/)
-- [RNN for Shakespeare](https://github.com/martin-gorner/tensorflow-rnn-shakespeare/blob/master/rnn_train.py): example code
+- [RNN for Shakespeare](https://github.com/martin-gorner/tensorflow-rnn-shakespeare): example code
 - [RNN w/ LSTM](https://pythonprogramming.net/rnn-tensorflow-python-machine-learning-tutorial/): more example code
 - [TensorFlow](https://www.tensorflow.org/tutorials/recurrent)
 - [Keras documentation](https://keras.io/)

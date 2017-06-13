@@ -28,21 +28,20 @@ def train_rnn(raw_data):
     ---------
     raw_data: (iterable) text corpora
     '''
-
     text, vocab, unknown_tokens = dp.text_to_vocab(raw_data, vocab_size=VOCAB_SIZE)
     data = dp.text_to_sequence(text, vocab)
 
     # Build a model: see hyper parameters above
     print('Building model...')
     rnn = Sequential([
-        Embedding(VOCAB_SIZE, VOCAB_SIZE, input_length=SEQ_LENGTH),
+        Embedding(VOCAB_SIZE, INTERNAL_SIZE, input_length=SEQ_LENGTH),
         LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(None, SEQ_LENGTH, INTERNAL_SIZE)),
         Dropout(DROPOUT),
         LSTM(INTERNAL_SIZE, return_sequences=True),
         Dropout(DROPOUT),
-        LSTM(INTERNAL_SIZE, return_sequences=False),
+        LSTM(INTERNAL_SIZE),
         Dropout(DROPOUT),
-        Dense(VOCAB_SIZE),
+        Dense(INTERNAL_SIZE),
         Activation('softmax')])
 
     optimizer = Adam(lr=LEARNING_RATE)
