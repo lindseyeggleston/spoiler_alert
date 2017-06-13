@@ -1,3 +1,4 @@
+import re
 
 def clean_text(chapter_set):
     # Edit book1
@@ -55,6 +56,15 @@ def add_chapter_indentation(text, chapter_set):
     final_text = ' '.join(new_text)
     return final_text
 
+def extract_character_chapters(character, text, chapter_set):
+    character = '\n{0}\n'.format(character.upper())
+    chapters = text.split('\n')
+    
+    matches =  re.findall(character, text)
+    return matches
+
+
+
 if __name__ == '__main__':
 
     chapter_set = set(['TYRION', 'DAENERYS', 'JON', 'BRAN', "THE MERCHANT’S MAN",\
@@ -70,9 +80,6 @@ if __name__ == '__main__':
         'THE REAVER', 'CAT OF THE CANALS', 'THE PRINCESS IN THE TOWER', 'EDDARD',\
         'EPILOGUE'])
 
-    # clean_text(chapter_set)
-    with open('../data/text/book3.txt') as s:
-        text3 = s.read()
-    new_text = add_chapter_indentation(text3, chapter_set)
-    with open('../data/text/book3.txt', 'w') as b3:
-        b3.write(new_text)
+    with open('../../soif_data/text/book1.txt') as f:
+        text = f.read()
+    print(extract_character_chapters('daenerys', text, chapter_set))

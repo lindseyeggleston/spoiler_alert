@@ -3,6 +3,7 @@ import os
 from keras.preprocessing.text import text_to_word_sequence, one_hot
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import OrderedDict, defaultdict, namedtuple
+from string import punctuation
 
 def file_to_text(filepath):
     if os.path.isfile(filepath):
@@ -12,35 +13,43 @@ def file_to_text(filepath):
             text = t.read()
     return text
 
-def text_to_vocab(text, vocab_length=8000):
+def text_to_vocab(text, vocab_size=8000):
     '''
     Learns the vocabulary within a text and refines the length to the most
-    frequently used words
+    frequently used words while setting all else to UNKNOWN_TOKEN.
 
     Parameters:
     -----------
     text: LIST/ARRAY - iterable which yields a string of text
-    vocab_length: INT - num of words in vocab
+    vocab_size: INT - num of words in vocab
 
     Returns:
     --------
-    a vocab dictionary of specified length if vocab_length not None
+    a refined text (iterable) with a vocab dictionary of specified length if vocab_size not None
     '''
-    vectorizer = TfidfVectorizer(max_features=vocab_length)
-    X = vectorizer.fit_transform(text)
+    vectorizer = TfidfVectorizer(max_features=vocab_size-1)
+    vectorizer.fit(text)
     vocab = vectorizer.vocabulary_
-    return vocab
+    if vocab_size not None:
+        vocab['UNKNOWN_TOKEN'] = vocab_size - 1
+    if len(vocab) < vocab_size:
+        assert('The text contains {0} words. Please select a different vocab size'\
+                    .format(len(vocab)))
+    unknown_tokens = set([word for word in text if word not in vocab])
+    new_text = ['UNKNOWN_TOKEN' if word not in vocab else word for word in text]
+    return new_text, vocab, unknown_tokens
 
-def text_to_sequence(text):
-    pass
+def text_to_sequence(text, vocab):
+    indices = [vocab[word] for word in text]
+    return indices
 
-def create_minibatch(text, batch_size, seq_length, num_epochs):
+def create_minibatch(text, batch_size, seq_length, num_epochs, vocab_size=8000):
     '''
     Generates mini-batches of data to be processed within the recurrent neural network
 
     Parameters:
     -----------
-    text: STR - text corpus
+    text: LIST - text corpus
     batch_size: INT - size of batch
     seq_length: INT - length of sequence
     num_epochs: INT - num of epochs for training rnn
@@ -49,14 +58,12 @@ def create_minibatch(text, batch_size, seq_length, num_epochs):
     --------
     yields input matrix X for a single batch, expected output y, and the current epoch
     '''
-    data = np.array(text.split(' '))
-    vocab = text_to_vocab(text)
-    num_batches = data.size // (batch_size * seq_length)
+    num_batches = len(text) // (batch_size * seq_length)
 
     # Round and reshape data to be even with batch numbers
     rounded_data = num_batches * batch_size * seq_length
-    x_data = np.reshape(data[0:rounded_data], [batch_size, num_batches * seq_length])
-    y_data = np.reshape(data[1:rounded_data + 1], [batch_size, num_batches * seq_length])
+    x_data = np.reshape(text[0:rounded_data], [batch_size, num_batches * seq_length])
+    y_data = np.reshape(text[1:rounded_data + 1], [batch_size, num_batches * seq_length])
 
     for epoch in range(num_epochs):
         for batch in range(num_batches):
@@ -64,14 +71,18 @@ def create_minibatch(text, batch_size, seq_length, num_epochs):
             y = y_data[:, seq_length * batch:seq_length * (batch + 1)]
 
             # Shift by row(s) at each epoch for different looking data
-            X = np.roll(x, -epoch, axis=0)
+            X = np.roll(X, -epoch, axis=0)
             y = np.roll(y, -epoch, axis=0)
 
             yield X, y, epoch  # Generator
 
 if __name__ == '__main__':
-    with open('../data/SOIF/AGameOfThrones.txt') as f:
+    with open('../../soif_data/text/book1.txt') as f:
         text = f.read()
-        raw_data = text.split('\n')
-    vocab = text_to_vocab(raw_data, 5000)
-    print('Length: ', len(vocab))
+        text = ''.join(char for char in text if char not in punctuation)
+        raw_data = text.lower().split(' ')
+    new_text, vocab, unknown_tokens = text_to_vocab(raw_data)
+    # print('Length: ', len(vocab))
+    # print(new_text[0:500])
+    # print(unknown_tokens)
+    print(text_to_sequence(new_text, vocab))
