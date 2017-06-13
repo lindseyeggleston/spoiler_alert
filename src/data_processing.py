@@ -4,6 +4,7 @@ from keras.preprocessing.text import text_to_word_sequence, one_hot
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import OrderedDict, defaultdict, namedtuple
 from string import punctuation
+from nltk.tokenize import word_tokenize
 
 def file_to_text(filepath):
     '''
@@ -31,24 +32,37 @@ def text_to_vocab(text, vocab_size=8000):
 
     Parameters:
     -----------
-    text: LIST/ARRAY - iterable which yields a string of text
+    text: STR - text corpus/corpora
     vocab_size: INT - num of words in vocab
 
     Returns:
     --------
     a refined text (iterable) with a vocab dictionary of specified length if vocab_size not None
     '''
-    vectorizer = TfidfVectorizer(max_features=vocab_size-1)
-    vectorizer.fit(text)
-    vocab = vectorizer.vocabulary_
-    if vocab_size != None:
-        vocab['UNKNOWN_TOKEN'] = vocab_size - 1
-    if len(vocab) < vocab_size:
-        assert('The text contains {0} words. Please select a different vocab size'\
-                    .format(len(vocab)))
-    unknown_tokens = set([word for word in text if word not in vocab])
-    new_text = ['UNKNOWN_TOKEN' if word not in vocab else word for word in text]
-    return new_text, vocab, unknown_tokens
+    # Tokenize text
+    tokens = word_tokenize(text)
+
+    # Find frequent words
+    word_freq = Counter(tokens)
+    if len(word_freq) < vocab_size:
+        assert('The text contains {0} unique words. Select a smaller vocab size'\
+            .format(len(word_freq)))
+    elif len(word_freq) == vocab_size:
+        n_freq_words = set([word[0] for word in word_freq.most_frequent(vocab_size)])
+        unknown_tokens = None
+    else:
+        n_freq_words = {word[0]:i for i,word in enumerate(sorted(word_freq\
+            .most_frequent(vocab_size-1)))}
+
+        # convert all words not in refined vocab to 'UNKNOWN_TOKEN'
+        n_freq_words['UNKNOWN_TOKEN'] = vocab_size - 1
+        unknown_tokens = set([])
+        for i, word in enumerate(tokens):
+            if word not in n_freq_words.keys():
+                unknown_tokens.add(word)
+                tokens[i] = 'UNKNOWN_TOKEN'
+
+    return tokens, n_freq_words, unknown_tokens
 
 def word_to_indices(text, vocab):
     '''
