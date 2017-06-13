@@ -41,6 +41,7 @@ def text_to_vocab(text, vocab_size=8000):
 
     # Find frequent words
     word_freq = Counter(tokens)
+    print(len(word_freq))
     if len(word_freq) < vocab_size:
         assert('The text contains {0} unique words. Select a smaller vocab size'\
             .format(len(word_freq)))
@@ -49,7 +50,7 @@ def text_to_vocab(text, vocab_size=8000):
         unknown_tokens = None
     else:
         n_freq_words = {word[0]:i for i,word in enumerate(sorted(word_freq\
-            .most_frequent(vocab_size-1)))}
+            .most_common(vocab_size-1)))}
 
         # convert all words not in refined vocab to 'UNKNOWN_TOKEN'
         n_freq_words['UNKNOWN_TOKEN'] = vocab_size - 1
@@ -148,15 +149,7 @@ def count_characters(text):
 
 
 if __name__ == '__main__':
-    with open('../../soif_data/text/book1.txt') as f:
+    with open('../../soif_data/characters/cersei.txt') as f:
         text = f.read()
-    #     text = ''.join(char for char in text if char not in punctuation)
-    #     raw_data = text.lower().split(' ')
-    # new_text, vocab, unknown_tokens = text_to_vocab(raw_data)
-    # print('Length: ', len(vocab))
-    # print(new_text[0:500])
-    # print(unknown_tokens)
-    # print(text_to_sequence(new_text, vocab))
-
-    char_dict = count_characters(text)
-    print(char_dict)
+    tokens, n_freq_words, unknown_tokens = text_to_vocab(text, vocab_size=7000)
+    print(tokens[:500])

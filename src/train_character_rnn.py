@@ -1,10 +1,11 @@
 import numpy as np
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Dropout
+from keras.layers.core import Dense, Dropout
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
 from keras.optimizers import RMSprop, Adam
 import data_processing as dp
+import os
 
 N_EPOCHS = 10
 SEQ_LENGTH = 30 # length of input sequence
@@ -41,4 +42,19 @@ def train_rnn(text):
 
     rnn = _build_rnn(n_chars)
 
-    pass
+    # Mini-batch stocastic
+    print('Training...')
+    for X, y, epoch in dp.create_minibatch(text, BATCH_SIZE, SEQ_LENGTH, NUM_EPOCHS):
+        rnn.train_on_batch(X, y)
+
+    # Save trained model to pickle file
+    title = raw_input('Enter a filename for this model: ')
+    if os.path.isfile('../model/{0}.pkl'.format(title)):
+        print('This filename already exist')
+        title = raw_input('Enter a new filename: ')
+    filename = '../model/{0}.pkl'.format(title)
+    with open(filename, 'w') as f:
+        pickle.dump(rnn, f)
+        print('Your model has been pickled')
+
+    return None
