@@ -6,6 +6,17 @@ from collections import OrderedDict, defaultdict, namedtuple
 from string import punctuation
 
 def file_to_text(filepath):
+    '''
+    Opens text files and converts them into string objects
+
+    Parameters
+    ----------
+    filepath: STR - path to file or folder
+
+    Returns
+    -------
+    a string of text corpus/corpora
+    '''
     if os.path.isfile(filepath):
         text = filepath.read().lower()
     elif os.path.isdir(filepath):
@@ -39,9 +50,37 @@ def text_to_vocab(text, vocab_size=8000):
     new_text = ['UNKNOWN_TOKEN' if word not in vocab else word for word in text]
     return new_text, vocab, unknown_tokens
 
-def text_to_sequence(text, vocab):
+def word_to_indices(text, vocab):
+    '''
+    Converts array-like object from words into corresponding vocab index number
+
+    Parameters
+    ----------
+    indices: ARRAY -
+    vocab: DICT - text vocabulary where keys are words and values are index
+            references
+    Returns
+    -------
+    array-like object
+    '''
     indices = [vocab[word] for word in text]
     return indices
+
+def indices_to_word(indices, vocab):
+    '''
+    Converts array-like object from vocab index number into corresponding words
+
+    Parameters
+    ----------
+    indices: ARRAY -
+    vocab: DICT - text vocabulary where keys are words and values are index
+            references
+    Returns
+    -------
+    array-like object
+    '''
+    index_vocab = dict(list(zip(vocab.values(),vocab.keys())))
+    return [index_vocab[index] for index in text]
 
 def create_minibatch(text, batch_size, seq_length, num_epochs, vocab_size=8000):
     '''

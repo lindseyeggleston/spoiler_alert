@@ -11,14 +11,13 @@ import data_processing as dp
 from string import punctuation
 
 # model hyper parameters
-num_epochs = 10
-seq_length = 30
-n_layers = 3
-dropout = 0.2
-batch_size = 500
-learning_rate = 0.01
-internal_size = 512
-vocab_size = 8000 # number of words in vocabulary
+NUM_EPOCHS = 10
+SEQ_LENGTH = 30
+DROPOUT = 0.2
+BATCH_SIZE = 500
+LEARNING_RATE = 0.01
+INTERNAL_SIZE = 512
+VOCAB_SIZE = 8000 # number of words in vocabulary
 
 def train_rnn(raw_data):
     '''
@@ -30,34 +29,34 @@ def train_rnn(raw_data):
     raw_data: (iterable) text corpora
     '''
 
-    text, vocab, unknown_tokens = dp.text_to_vocab(raw_data, vocab_size=vocab_size)
+    text, vocab, unknown_tokens = dp.text_to_vocab(raw_data, vocab_size=VOCAB_SIZE)
     data = dp.text_to_sequence(text, vocab)
 
     # Build a model: see hyper parameters above
     print('Building model...')
     rnn = Sequential([
-        Embedding(vocab_size, vocab_size, input_length=seq_length),
-        LSTM(internal_size, return_sequences=True, input_shape=(None, seq_length, internal_size)),
-        Dropout(dropout),
-        LSTM(internal_size, return_sequences=True),
-        Dropout(dropout),
-        LSTM(internal_size, return_sequences=False),
-        Dropout(dropout),
-        Dense(vocab_size),
+        Embedding(VOCAB_SIZE, VOCAB_SIZE, input_length=SEQ_LENGTH),
+        LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(None, SEQ_LENGTH, INTERNAL_SIZE)),
+        Dropout(DROPOUT),
+        LSTM(INTERNAL_SIZE, return_sequences=True),
+        Dropout(DROPOUT),
+        LSTM(INTERNAL_SIZE, return_sequences=False),
+        Dropout(DROPOUT),
+        Dense(VOCAB_SIZE),
         Activation('softmax')])
 
-    optimizer = Adam(lr=learning_rate)
+    optimizer = Adam(lr=LEARNING_RATE)
     rnn.compile(optimizer=optimizer, loss='categorical_crossentropy')
 
     # Mini-batch stocastic
     print('Training...')
-    for X, y, epoch in dp.create_minibatch(text, batch_size, seq_length, num_epochs):
+    for X, y, epoch in dp.create_minibatch(text, BATCH_SIZE, SEQ_LENGTH, NUM_EPOCHS):
         rnn.train_on_batch(X, y)
 
     # Save trained model to pickle file
     filename = '../model/rnn.pkl'
     with open(filename, 'w') as f:
-        pickle.dump(model, f)
+        pickle.dump(rnn, f)
         print('Your model has been pickled')
     return None
 
