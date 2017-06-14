@@ -20,8 +20,8 @@ def _build_rnn(n_chars):
     # Construct model with LSTM architecture
     print('Building model...')
     rnn = Sequential([
-        Embedding(n_chars, n_chars),
-        LSTM(INTERNAL_SIZE, input_shape=(None, SEQ_LENGTH, n_chars)),
+        Embedding(INTERNAL_SIZE, n_chars),
+        LSTM(INTERNAL_SIZE, input_shape=(SEQ_LENGTH, n_chars)),
         Dropout(DROPOUT),
         Dense(n_chars, activation='softmax')
     ])
@@ -36,7 +36,7 @@ def _build_rnn(n_chars):
 def train_rnn(text):
 
     # Dictionaries
-    char_index = dp.count_characters
+    char_index = dp.count_characters(text)
     n_chars = len(char_index)
     index_char = dict(list(zip(char_index.values(), char_index.keys())))
 
@@ -44,7 +44,10 @@ def train_rnn(text):
 
     # Mini-batch stocastic
     print('Training...')
-    for X, y, epoch in dp.create_minibatch(text, BATCH_SIZE, SEQ_LENGTH, NUM_EPOCHS):
+    text_lst = [char for char in text]
+    for X, y, epoch in dp.create_minibatch(text_lst, BATCH_SIZE, SEQ_LENGTH, N_EPOCHS):
+        funct = np.vectorize(dp.text_to_indices)
+        X, y = funct(X, char_index), funct(y, char_index)
         rnn.train_on_batch(X, y)
 
     # Save trained model to pickle file
@@ -58,3 +61,7 @@ def train_rnn(text):
         print('Your model has been pickled')
 
     return None
+
+if __name__ == '__main__':
+    text = dp.file_to_text('../../soif_data/characters/cersei.txt')
+    train_rnn(text)

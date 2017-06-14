@@ -16,7 +16,8 @@ def file_to_text(filepath):
     a string of text corpus/corpora
     '''
     if os.path.isfile(filepath):
-        text = filepath.read().lower()
+        with open(filepath) as f:
+            text = f.read()
     elif os.path.isdir(filepath):
         with open(filepath + '/*.txt') as f:
             text = t.read()
@@ -34,7 +35,8 @@ def text_to_vocab(text, vocab_size=8000):
 
     Returns:
     --------
-    a refined text (iterable) with a vocab dictionary of specified length if vocab_size not None
+    a refined text (iterable) with a vocab dictionary of specified length if
+    vocab_size not None
     '''
     # Tokenize text
     tokens = word_tokenize(text)
@@ -62,7 +64,7 @@ def text_to_vocab(text, vocab_size=8000):
 
     return tokens, n_freq_words, unknown_tokens
 
-def word_to_indices(text, vocab):
+def text_to_index(text, vocab):
     '''
     Converts array-like object from words into corresponding vocab index number
 
@@ -75,10 +77,9 @@ def word_to_indices(text, vocab):
     -------
     array-like object
     '''
-    indices = [vocab[word] for word in text]
-    return indices
+    return vocab[text]
 
-def indices_to_word(indices, vocab):
+def indices_to_text(indices, vocab):
     '''
     Converts array-like object from vocab index number into corresponding words
 
@@ -94,30 +95,34 @@ def indices_to_word(indices, vocab):
     index_vocab = dict(list(zip(vocab.values(),vocab.keys())))
     return [index_vocab[index] for index in text]
 
-def create_minibatch(text, batch_size, seq_length, num_epochs, vocab_size=8000):
+def create_minibatch(text, batch_size, seq_length, n_epochs, vocab):
     '''
-    Generates mini-batches of data to be processed within the recurrent neural network
+    Generates mini-batches of data to be processed within the recurrent neural
+    network
 
     Parameters:
     -----------
     text: LIST - text corpus
     batch_size: INT - size of batch
     seq_length: INT - length of sequence
-    num_epochs: INT - num of epochs for training rnn
+    n_epochs: INT - num of epochs for training rnn
+    vocab: DICT - refined vocab dictionary where keys are words and values are
+        indices
 
     Returns:
     --------
-    yields input matrix X for a single batch, expected output y, and the current epoch
+    yields input matrix X for a single batch, expected output y, and the current
+    epoch
     '''
-    num_batches = (len(text) - 1) // (batch_size * seq_length)
+    n_batches = (len(text) - 1) // (batch_size * seq_length)
 
     # Round and reshape data to be even with batch numbers
-    rounded_data = num_batches * batch_size * seq_length
-    x_data = np.reshape(text[0:rounded_data], [batch_size, num_batches * seq_length])
-    y_data = np.reshape(text[1:rounded_data + 1], [batch_size, num_batches * seq_length])
+    round_data = n_batches * batch_size * seq_length
+    x_data = np.reshape(text[0:round_data], [batch_size, n_batches * seq_length])
+    y_data = np.reshape(text[1:round_data + 1], [batch_size, n_batches * seq_length])
 
-    for epoch in range(num_epochs):
-        for batch in range(num_batches):
+    for epoch in range(n_epochs):
+        for batch in range(n_batches):
             X = x_data[:, seq_length * batch:seq_length * (batch + 1)]
             y = y_data[:, seq_length * batch:seq_length * (batch + 1)]
 
@@ -125,6 +130,9 @@ def create_minibatch(text, batch_size, seq_length, num_epochs, vocab_size=8000):
             X = np.roll(X, -epoch, axis=0)
             y = np.roll(y, -epoch, axis=0)
 
+            funct = np.vectorize(text_to_index)
+            X = funct(X, vocab)
+            y = funct(y, vocab)
             yield X, y, epoch  # Generator
 
 def count_characters(text):
@@ -151,5 +159,6 @@ def count_characters(text):
 if __name__ == '__main__':
     with open('../../soif_data/characters/cersei.txt') as f:
         text = f.read()
-    tokens, n_freq_words, unknown_tokens = text_to_vocab(text, vocab_size=7000)
-    print(tokens[:500])
+    char_dict = count_characters(text)
+    sequence = [char for char in text]
+    X, y, epoch = create_minibatch(sequence, 200, 30, 10, len(char_dict))
