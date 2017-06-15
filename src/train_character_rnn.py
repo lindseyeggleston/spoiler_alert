@@ -45,7 +45,8 @@ def train_rnn(text):
     # Mini-batch stocastic
     print('Training...')
     text_lst = [char for char in text]
-    for X, y, epoch in dp.create_minibatch(text_lst, BATCH_SIZE, SEQ_LENGTH, N_EPOCHS):
+    for X, y, epoch in dp.create_minibatch(text_lst, BATCH_SIZE, SEQ_LENGTH, \
+            N_EPOCHS, char_index):
         funct = np.vectorize(dp.text_to_indices)
         X, y = funct(X, char_index), funct(y, char_index)
         rnn.train_on_batch(X, y)
