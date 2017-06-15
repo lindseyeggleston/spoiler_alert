@@ -7,13 +7,13 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/text-generator')
+@app.route('/generic')
 def generate_text():
-    return render_template('text-generator.html')
+    return render_template('generic.html')
 
-@app.route('/text-generator-by-character', methods=['GET', 'POST'])
+@app.route('/character', methods=['GET', 'POST'])
 def generate_character_text():
-    return render_template('text-generator-by-character.html')
+    return render_template('character.html')
 
 
 

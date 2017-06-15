@@ -65,48 +65,6 @@
 		border: solid 2px _palette(fg-bold);
 	}
 
-/* Table */
-
-	table {
-		tbody {
-			tr {
-				border: solid 1px _palette(fg-bold);
-				border-left: 0;
-				border-right: 0;
-			}
-		}
-
-		&.alt {
-			tbody {
-				tr {
-					td {
-						border: solid 1px _palette(fg-bold);
-						border-left-width: 0;
-						border-top-width: 0;
-
-						&:first-child {
-							border-left-width: 1px;
-						}
-					}
-
-					&:first-child {
-						td {
-							border-top-width: 1px;
-						}
-					}
-				}
-			}
-
-			thead {
-				border-bottom: 0;
-			}
-
-			tfoot {
-				border-top: 0;
-			}
-		}
-	}
-
 /* Features */
 
 	.features {
