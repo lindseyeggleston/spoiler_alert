@@ -2295,74 +2295,6 @@ h4.customfont {
 			margin-left: 2em;
 		}
 
-/* Table */
-
-	.table-wrapper {
-		-webkit-overflow-scrolling: touch;
-		overflow-x: auto;
-	}
-
-	table {
-		margin: 0 0 2em 0;
-		width: 100%;
-	}
-
-		table tbody tr {
-			border: solid 1px rgba(255, 255, 255, 0.125);
-			border-left: 0;
-			border-right: 0;
-		}
-
-			table tbody tr:nth-child(2n + 1) {
-				background-color: rgba(255, 255, 255, 0.025);
-			}
-
-		table td {
-			padding: 0.75em 0.75em;
-		}
-
-		table th {
-			color: #ffffff;
-			font-size: 0.9em;
-			font-weight: 600;
-			padding: 0 0.75em 0.75em 0.75em;
-			text-align: left;
-		}
-
-		table thead {
-			border-bottom: solid 2px rgba(255, 255, 255, 0.125);
-		}
-
-		table tfoot {
-			border-top: solid 2px rgba(255, 255, 255, 0.125);
-		}
-
-		table.alt {
-			border-collapse: separate;
-		}
-
-			table.alt tbody tr td {
-				border: solid 1px rgba(255, 255, 255, 0.125);
-				border-left-width: 0;
-				border-top-width: 0;
-			}
-
-				table.alt tbody tr td:first-child {
-					border-left-width: 1px;
-				}
-
-			table.alt tbody tr:first-child td {
-				border-top-width: 1px;
-			}
-
-			table.alt thead {
-				border-bottom: 0;
-			}
-
-			table.alt tfoot {
-				border-top: 0;
-			}
-
 /* Button */
 
 	input[type="submit"],
@@ -2796,7 +2728,7 @@ h4.customfont {
 			-ms-transition: opacity 0.35s ease, -ms-transform 0.35s ease;
 			transition: opacity 0.35s ease, transform 0.35s ease;
 			-webkit-overflow-scrolling: touch;
-			background: #4c5c96;
+			background: #3f4e85;
 			border-radius: 5px;
 			display: block;
 			max-width: 100%;
@@ -3278,19 +3210,19 @@ h4.customfont {
 			}
 
 		.wrapper.spotlight {
-			background-color: #4c5c96;
+			background-color: #69464E;
 		}
 
 			.wrapper.spotlight:before, .wrapper.spotlight:after {
-				background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,100 100,0 100,100' style='fill:%234c5c96%3B' /%3E%3C/svg%3E");
+				background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,100 100,0 100,100' style='fill:%2369464e%3B' /%3E%3C/svg%3E");
 			}
 
 			.wrapper.spotlight:before {
-				box-shadow: inset 0 -1px 0 0 #4c5c96, 0 1px 0 0 #4c5c96;
+				box-shadow: inset 0 -1px 0 0 #69464E, 0 1px 0 0 #69464E;
 			}
 
 			.wrapper.spotlight:after {
-				box-shadow: inset 0 -1px 0 0 #4c5c96, 0 1px 0 0 #4c5c96;
+				box-shadow: inset 0 -1px 0 0 #69464E, 0 1px 0 0 #69464E;
 			}
 
 			.wrapper.spotlight .inner {
@@ -3339,35 +3271,35 @@ h4.customfont {
 			}
 
 			.wrapper.spotlight.style2 {
-				background-color: #45558d;
+				background-color: #3D4051;
 			}
 
 				.wrapper.spotlight.style2:before, .wrapper.spotlight.style2:after {
-					background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,100 100,0 100,100' style='fill:%2345558d%3B' /%3E%3C/svg%3E");
+					background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,100 100,0 100,100' style='fill:%233D4051%3B' /%3E%3C/svg%3E");
 				}
 
 				.wrapper.spotlight.style2:before {
-					box-shadow: inset 0 -1px 0 0 #45558d, 0 1px 0 0 #45558d;
+					box-shadow: inset 0 -1px 0 0 #3D4051, 0 1px 0 0 #3D4051;
 				}
 
 				.wrapper.spotlight.style2:after {
-					box-shadow: inset 0 -1px 0 0 #45558d, 0 1px 0 0 #45558d;
+					box-shadow: inset 0 -1px 0 0 #3D4051, 0 1px 0 0 #3D4051;
 				}
 
 			.wrapper.spotlight.style3 {
-				background-color: #3f4e85;
+				background-color: #5a3c43;
 			}
 
 				.wrapper.spotlight.style3:before, .wrapper.spotlight.style3:after {
-					background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,100 100,0 100,100' style='fill:%233f4e85%3B' /%3E%3C/svg%3E");
+					background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,100 100,0 100,100' style='fill:%235a3c43%3B' /%3E%3C/svg%3E");
 				}
 
 				.wrapper.spotlight.style3:before {
-					box-shadow: inset 0 -1px 0 0 #3f4e85, 0 1px 0 0 #3f4e85;
+					box-shadow: inset 0 -1px 0 0 #5a3c43, 0 1px 0 0 #5a3c43;
 				}
 
 				.wrapper.spotlight.style3:after {
-					box-shadow: inset 0 -1px 0 0 #3f4e85, 0 1px 0 0 #3f4e85;
+					box-shadow: inset 0 -1px 0 0 #5a3c43, 0 1px 0 0 #5a3c43;
 				}
 
 			.wrapper.spotlight.style4 {
