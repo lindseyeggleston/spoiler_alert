@@ -18,20 +18,9 @@ BATCH_SIZE = 500
 LEARNING_RATE = 0.01
 INTERNAL_SIZE = 512
 VOCAB_SIZE = 8000 # number of words in vocabulary
+STEP = 7
 
-def train_rnn(raw_data):
-    '''
-    Trains a word-level recurrent neural network using LSTM architecture on text
-    corpora.
-
-    Parameter
-    ---------
-    raw_data: (iterable) text corpora
-    '''
-    text, vocab, unknown_tokens = dp.text_to_vocab(raw_data, vocab_size=VOCAB_SIZE)
-    data = dp.text_to_sequence(text, vocab)
-
-    # Build a model: see hyper parameters above
+def _build_rnn():
     print('Building model...')
     rnn = Sequential([      # linear stack of layers
         Embedding(VOCAB_SIZE, VOCAB_SIZE, input_length=SEQ_LENGTH),
@@ -46,6 +35,28 @@ def train_rnn(raw_data):
 
     optimizer = Adam(lr=LEARNING_RATE)
     rnn.compile(optimizer=optimizer, loss='categorical_crossentropy')
+
+    return rnn
+
+def train_rnn(raw_data):
+    '''
+    Trains a word-level recurrent neural network using LSTM architecture on text
+    corpora.
+
+    Parameter
+    ---------
+    raw_data: (iterable) text corpora
+    '''
+    tokens = dp.tokenize_text(text)
+    tokens, word_indices, unknown_tokens = dp.text_to_vocab(tokens, vocab_size=VOCAB_SIZE)
+    indices_word = dict((v,k) for k,v in word_indices.items())
+
+    sequences = []
+    next_words = []
+
+    for i in range(0, len(tokens)-SEQ_LENGTH, STEP):
+        sequences.append(tokens[i: i + SEQ_LENGTH])
+        next_words.append(tokens[i + SEQ_LENGTH])
 
     # Mini-batch stocastic
     print('Training...')

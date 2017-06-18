@@ -35,7 +35,6 @@ step = 3
 print("maxlen:",maxlen,"step:", step)
 sentences = []
 next_words = []
-sentences1 = []
 list_words = []
 
 sentences2=[]
