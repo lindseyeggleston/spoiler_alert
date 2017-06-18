@@ -60,13 +60,16 @@ def text_to_vocab(text, vocab_size=8000):
     # Find frequent words
     word_freq = Counter(text)
     print(len(word_freq))
-    if len(word_freq) <= vocab_size:
-        vocab_size = len(word_freq)
+    if len(word_freq) < vocab_size:
+        print('There are {0} unique words in this text. Choose a different vocab \
+                size.'.format(len(word_freq)))
+        break
+    elif len(word_freq) == vocab_size:
         n_freq_words = set([word[0] for word in word_freq.most_common(vocab_size)])
         unknown_tokens = None
     else:
         n_freq_words = {word[0]:i for i,word in enumerate(sorted(word_freq\
-            .most_common(vocab_size-1)))}
+                .most_common(vocab_size-1)))}
 
         # convert all words not in refined vocab to 'UNKNOWN_TOKEN'
         n_freq_words['UNKNOWN_TOKEN'] = vocab_size - 1
@@ -75,39 +78,11 @@ def text_to_vocab(text, vocab_size=8000):
             if word not in n_freq_words.keys():
                 unknown_tokens.add(word)
                 text[i] = 'UNKNOWN_TOKEN'
+
     vocab = {word:i for i, word in enumerate(n_freq_words)}
+
     return text, vocab, unknown_tokens
 
-def text_to_index(text, vocab):
-    '''
-    Converts array-like object from words into corresponding vocab index number
-
-    Parameters
-    ----------
-    indices: ARRAY -
-    vocab: DICT - text vocabulary where keys are words and values are index
-            references
-    Returns
-    -------
-    array-like object
-    '''
-    return vocab[text]
-
-def indices_to_text(indices, vocab):
-    '''
-    Converts array-like object from vocab index number into corresponding words
-
-    Parameters
-    ----------
-    indices: ARRAY -
-    vocab: DICT - text vocabulary where keys are words and values are index
-            references
-    Returns
-    -------
-    array-like object
-    '''
-    index_vocab = dict(list(zip(vocab.values(),vocab.keys())))
-    return [index_vocab[index] for index in text]
 
 def create_minibatch(text, batch_size, seq_length, n_epochs, vocab):
     '''

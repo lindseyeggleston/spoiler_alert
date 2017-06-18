@@ -11,7 +11,7 @@ import data_processing as dp
 from string import punctuation
 
 # model hyper parameters
-NUM_EPOCHS = 10
+N_EPOCHS = 10
 SEQ_LENGTH = 30
 DROPOUT = 0.2
 BATCH_SIZE = 500
@@ -23,7 +23,6 @@ STEP = 7
 def _build_rnn():
     print('Building model...')
     rnn = Sequential([      # linear stack of layers
-        Embedding(VOCAB_SIZE, VOCAB_SIZE, input_length=SEQ_LENGTH),
         LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(SEQ_LENGTH, VOCAB_SIZE)), # return_sequences = True b/c many-to-many model
         Dropout(DROPOUT),
         LSTM(INTERNAL_SIZE, return_sequences=True),
@@ -38,6 +37,30 @@ def _build_rnn():
 
     return rnn
 
+def _vectorize_text(text, vocab_dict):
+    print('Vectorizing text...')
+
+    sequences = []
+    next_words = []
+
+    for i in range(0, len(text)-SEQ_LENGTH, STEP):
+        sequences.append(text[i: i + SEQ_LENGTH])
+        next_words.append(text[i + SEQ_LENGTH])
+
+    vec = np.vectorize(lambda x: vocab_dict[x])
+    X = vec(np.array(sequences))
+    y = vec(np.array(next_words))
+
+    Xo = np.zeros((X.shape[0], X.shape[1], VOCAB_SIZE), dtype=np.int8)
+    yo = np.zeros((y.shape[0], VOCAB_SIZE), dtype=np.int8)
+
+    for i, row in enumerate(X):
+        for j, val in enumerate(row):
+            Xo[i, j, val] = 1
+        yo[i, y[i]] = 1
+
+    return Xo, yo
+
 def train_rnn(raw_data):
     '''
     Trains a word-level recurrent neural network using LSTM architecture on text
@@ -51,20 +74,16 @@ def train_rnn(raw_data):
     tokens, word_indices, unknown_tokens = dp.text_to_vocab(tokens, vocab_size=VOCAB_SIZE)
     indices_word = dict((v,k) for k,v in word_indices.items())
 
-    sequences = []
-    next_words = []
+    X, y = _vectorize_text(tokens, word_indices)
 
-    for i in range(0, len(tokens)-SEQ_LENGTH, STEP):
-        sequences.append(tokens[i: i + SEQ_LENGTH])
-        next_words.append(tokens[i + SEQ_LENGTH])
+    rnn = _build_rnn()
 
     # Mini-batch stocastic
     print('Training...')
-    for X, y, epoch in dp.create_minibatch(text, BATCH_SIZE, SEQ_LENGTH, NUM_EPOCHS):
-        rnn.train_on_batch(X, y)
+    rnn.fit(X, y, batch_size=BATCH_SIZE, epochs=N_EPOCHS)
 
     # Save trained model to pickle file
-    filename = '../model/rnn.pkl'
+    filename = '../model/book1_rnn.pkl'
     with open(filename, 'w') as f:
         pickle.dump(rnn, f)
         print('Your model has been pickled')
@@ -73,6 +92,4 @@ def train_rnn(raw_data):
 if __name__ == '__main__':
     with open('../../soif_data/text/book1.txt') as f:
         text = f.read()
-        text = ''.join(char for char in text.lower() if char not in punctuation)
-        text = text.split(' ')
     train_rnn(text)
