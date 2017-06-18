@@ -33,15 +33,15 @@ def train_rnn(raw_data):
 
     # Build a model: see hyper parameters above
     print('Building model...')
-    rnn = Sequential([
-        Embedding(VOCAB_SIZE, INTERNAL_SIZE, input_length=SEQ_LENGTH),
-        LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(None, SEQ_LENGTH, INTERNAL_SIZE)),
+    rnn = Sequential([      # linear stack of layers
+        Embedding(VOCAB_SIZE, VOCAB_SIZE, input_length=SEQ_LENGTH),
+        LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(SEQ_LENGTH, VOCAB_SIZE)), # return_sequences = True b/c many-to-many model
         Dropout(DROPOUT),
         LSTM(INTERNAL_SIZE, return_sequences=True),
         Dropout(DROPOUT),
         LSTM(INTERNAL_SIZE),
         Dropout(DROPOUT),
-        Dense(INTERNAL_SIZE),
+        Dense(VOCAB_SIZE),
         Activation('softmax')])
 
     optimizer = Adam(lr=LEARNING_RATE)

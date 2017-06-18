@@ -38,17 +38,12 @@ def clean_text(chapter_set):
     with open('../data/text/book5.txt', 'w') as b5:
         b5.write(new_text5)
 
-def replace_indentation(text, chapter_set):
+def remove_indentation(text):
     temp_text = text.split('\t')
     for i,word in enumerate(temp_text):
-        temp_text[i] = word.strip(' ').strip('\n')
+        temp_text[i] = word.strip()
     new_text = ' '.join(temp_text)
-    temp_text = new_text.split('\n')
-    for i,word in enumerate(temp_text):
-        temp_text[i] = word.strip(' ')
-    new_text = ' '.join(temp_text)
-    final_text = add_chapter_indentation(new_text, chapter_set)
-    return final_text
+    return new_text
 
 def add_chapter_indentation(text, chapter_set):
     for chapter_title in chapter_set:
@@ -111,7 +106,7 @@ def chapter_content(chapter_title, book_filepath, n_characters=1000):
 
 
 if __name__ == '__main__':
-    
+
     # chapter titles for all 5 books
     chapter_set = set(["TYRION", "DAENERYS", "JON", "BRAN", "THE BLIND GIRL",\
         "DAVOS", "REEK", "THE WINDBLOWN", "THE WAYWARD BRIDE", "THE WATCHER",\

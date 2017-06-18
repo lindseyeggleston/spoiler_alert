@@ -2,6 +2,7 @@ import numpy as np
 import os
 from collections import Counter
 from nltk.tokenize import word_tokenize
+import re
 
 def file_to_text(filepath):
     '''
@@ -23,6 +24,24 @@ def file_to_text(filepath):
             text = t.read()
     return text
 
+def tokenize_text(text):
+    # Clean text
+    text = re.sub("’s", " ’s", text)
+    text = re.sub("’m", " am", text)
+    text = re.sub("’ve", " have", text)
+    text = re.sub("’re", " are", text)
+    text = re.sub("’d", " ’d", text)
+    text = re.sub("’ll", " will ", text)
+    text = re.sub("n’t", " not ", text)
+    text = text.replace('”', ' QUOTE_TOKEN')
+    text = text.replace('“', 'QUOTE_TOKEN ')
+    text = re.sub("’s", " ’s", text)
+    text = re.sub("…", "", text)
+
+    # Tokenize text
+    tokens = word_tokenize(text)
+    return tokens
+
 def text_to_vocab(text, vocab_size=8000):
     '''
     Learns the vocabulary within a text and refines the length to the most
@@ -30,7 +49,7 @@ def text_to_vocab(text, vocab_size=8000):
 
     Parameters:
     -----------
-    text: STR - text corpus/corpora
+    text: ARRAY/LIST - text corpus/corpora
     vocab_size: INT - num of words in vocab
 
     Returns:
@@ -38,17 +57,12 @@ def text_to_vocab(text, vocab_size=8000):
     a refined text (iterable) with a vocab dictionary of specified length if
     vocab_size not None
     '''
-    # Tokenize text
-    tokens = word_tokenize(text)
-
     # Find frequent words
-    word_freq = Counter(tokens)
+    word_freq = Counter(text)
     print(len(word_freq))
-    if len(word_freq) < vocab_size:
-        assert('The text contains {0} unique words. Select a smaller vocab size'\
-            .format(len(word_freq)))
-    elif len(word_freq) == vocab_size:
-        n_freq_words = set([word[0] for word in word_freq.most_frequent(vocab_size)])
+    if len(word_freq) <= vocab_size:
+        vocab_size = len(word_freq)
+        n_freq_words = set([word[0] for word in word_freq.most_common(vocab_size)])
         unknown_tokens = None
     else:
         n_freq_words = {word[0]:i for i,word in enumerate(sorted(word_freq\
@@ -57,12 +71,12 @@ def text_to_vocab(text, vocab_size=8000):
         # convert all words not in refined vocab to 'UNKNOWN_TOKEN'
         n_freq_words['UNKNOWN_TOKEN'] = vocab_size - 1
         unknown_tokens = set([])
-        for i, word in enumerate(tokens):
+        for i, word in enumerate(text):
             if word not in n_freq_words.keys():
                 unknown_tokens.add(word)
-                tokens[i] = 'UNKNOWN_TOKEN'
-
-    return tokens, n_freq_words, unknown_tokens
+                text[i] = 'UNKNOWN_TOKEN'
+    vocab = {word:i for i, word in enumerate(n_freq_words)}
+    return text, vocab, unknown_tokens
 
 def text_to_index(text, vocab):
     '''
@@ -126,13 +140,9 @@ def create_minibatch(text, batch_size, seq_length, n_epochs, vocab):
             X = x_data[:, seq_length * batch:seq_length * (batch + 1)]
             y = y_data[:, seq_length * batch:seq_length * (batch + 1)]
 
-            # Shift by row(s) at each epoch for different looking data
-            X = np.roll(X, -epoch, axis=0)
+            X = np.roll(X, -epoch, axis=0)# Shift text for each epoch
             y = np.roll(y, -epoch, axis=0)
 
-            funct = np.vectorize(text_to_index)
-            X = funct(X, vocab)
-            y = funct(y, vocab)
             yield X, y, epoch  # Generator
 
 def count_characters(text):
