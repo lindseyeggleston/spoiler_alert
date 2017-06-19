@@ -24,7 +24,7 @@ def to_bucket(f, bucket, write_name):
     s3 = boto3.resource('s3')
     data = open(f, 'rb')
     s3.Bucket(bucket).put_object(Key=write_name, Body=data)
-    print('Success! {} added to {} bucket'.format(write_name, bucket))
+    print('Success! {0} added to {1} bucket'.format(write_name, bucket))
 
 
 if __name__ == '__main__':

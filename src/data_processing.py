@@ -22,8 +22,9 @@ def file_to_text(filepath):
             text = f.read()
     elif os.path.isdir(filepath):
         text = ''
-        for filename in glob.glob(filepath.strip('/') + '/*.txt')
-            text += filename.read()
+        for filename in glob.glob(filepath + '/*.txt'):
+            with open(filename) as f:
+                text += f.read()
     return text
 
 def tokenize_text(text):
@@ -73,8 +74,8 @@ def text_to_vocab(text, vocab_size=8000):
     word_freq = Counter(text)
     print(len(word_freq))
     if len(word_freq) < vocab_size:
-        print('There are {0} unique words in this text. Choose a different vocab \
-                size.'.format(len(word_freq)))
+        print('There are {0} unique words in this text. Choose a different vocab size.'\
+                .format(len(word_freq)))
     elif len(word_freq) == vocab_size:
         n_freq_words = set([word[0] for word in word_freq.most_common(vocab_size)])
         unknown_tokens = None
