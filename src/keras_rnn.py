@@ -1,6 +1,6 @@
 '''
 This script takes 2 additional arguments and runs like so:
-    $ python keras_rnn.py text name
+    $ python keras_rnn.py filepath save_as
 '''
 
 from keras.models import Sequential
@@ -64,7 +64,7 @@ def _vectorize_text(text, vocab_dict):
 
     return Xo, yo
 
-def train_rnn(text, name):
+def train_rnn(text, save_as):
     '''
     Trains a word-level recurrent neural network using LSTM architecture on text
     corpora.
@@ -89,12 +89,13 @@ def train_rnn(text, name):
     print('Training...')
     rnn.fit(X, y, batch_size=BATCH_SIZE, epochs=N_EPOCHS)
 
-    save_as = '../model/{0}.h5'.format(name)
-    rnn.save_weights(save_as, overwrite=True)
-    rnn.save(save_as, overwrite=True)
+    name = '../model/{0}.h5'.format(save_as)
+    rnn.save_weights(name, overwrite=True)
+    rnn.save(name, overwrite=True)
 
 
 
 if __name__ == '__main__':
-    _, text, name = argv
-    train_rnn(text, name)
+    _, filepath, save_as = argv
+    text = dp.file_to_text(filepath)
+    train_rnn(text, save_as)
