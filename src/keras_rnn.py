@@ -83,13 +83,17 @@ def train_rnn(raw_data):
     rnn.fit(X, y, batch_size=BATCH_SIZE, epochs=N_EPOCHS)
 
     # Save trained model to pickle file
-    filename = '../model/book1_rnn.pkl'
+    filename = '../model/cersei_rnn.pkl'
     with open(filename, 'w') as f:
         pickle.dump(rnn, f)
         print('Your model has been pickled')
-    return None
+
+    model.save_weights("cersei_model.h5", overwrite=True)
+    model.save('cersei_model.h5', overwrite=True)
+    print('Saved model to disk.')
+
 
 if __name__ == '__main__':
-    with open('../../soif_data/text/book1.txt') as f:
+    with open('../../soif_data/characters/cersei.txt') as f:
         text = f.read()
     train_rnn(text)
