@@ -1,6 +1,6 @@
 '''
 This script takes 3 additional arguments and runs like so:
-    python write_to_s3.py file_name bucket_name write_name
+    $ python write_to_s3.py file_name bucket_name write_name
 '''
 
 from sys import argv

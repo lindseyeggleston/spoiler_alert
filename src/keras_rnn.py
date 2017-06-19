@@ -1,6 +1,6 @@
 '''
 This script takes 2 additional arguments and runs like so:
-    python keras_rnn.py text name
+    $ python keras_rnn.py text name
 '''
 
 from keras.models import Sequential
