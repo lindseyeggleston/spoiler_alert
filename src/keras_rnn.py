@@ -1,3 +1,8 @@
+'''
+This script takes 2 additional arguments and runs like so:
+    python keras_rnn.py text name
+'''
+
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.embeddings import Embedding
@@ -5,10 +10,8 @@ from keras.layers.recurrent import LSTM
 from keras.optimizers import Adam
 from keras.utils.data_utils import get_file
 import numpy as np
-import sys
-import pickle
+from sys import argv
 import data_processing as dp
-from string import punctuation
 
 # model hyper parameters
 N_EPOCHS = 10
@@ -61,14 +64,19 @@ def _vectorize_text(text, vocab_dict):
 
     return Xo, yo
 
-def train_rnn(raw_data):
+def train_rnn(text, name):
     '''
     Trains a word-level recurrent neural network using LSTM architecture on text
     corpora.
 
-    Parameter
-    ---------
-    raw_data: (iterable) text corpora
+    Parameters
+    ----------
+    text: STR - text corpus/corpora
+    model_title: STR - the filename for the saved model
+
+    Returns
+    -------
+    None
     '''
     tokens = dp.tokenize_text(text)
     tokens, word_indices, unknown_tokens = dp.text_to_vocab(tokens, vocab_size=VOCAB_SIZE)
@@ -78,22 +86,15 @@ def train_rnn(raw_data):
 
     rnn = _build_rnn()
 
-    # Mini-batch stocastic
     print('Training...')
     rnn.fit(X, y, batch_size=BATCH_SIZE, epochs=N_EPOCHS)
 
-    # Save trained model to pickle file
-    filename = '../model/cersei_rnn.pkl'
-    with open(filename, 'w') as f:
-        pickle.dump(rnn, f)
-        print('Your model has been pickled')
+    save_as = '../model/{0}.h5'.format(name)
+    rnn.save_weights(save_as, overwrite=True)
+    rnn.save(save_as, overwrite=True)
 
-    model.save_weights("cersei_model.h5", overwrite=True)
-    model.save('cersei_model.h5', overwrite=True)
-    print('Saved model to disk.')
 
 
 if __name__ == '__main__':
-    with open('../../soif_data/characters/cersei.txt') as f:
-        text = f.read()
-    train_rnn(text)
+    _, text, name = argv
+    train_rnn(text, name)
