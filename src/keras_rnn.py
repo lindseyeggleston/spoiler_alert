@@ -17,11 +17,11 @@ import data_processing as dp
 N_EPOCHS = 10
 SEQ_LENGTH = 30
 DROPOUT = 0.2
-BATCH_SIZE = 500
-LEARNING_RATE = 0.01
+BATCH_SIZE = 300
+LEARNING_RATE = 0.001
 INTERNAL_SIZE = 512
-VOCAB_SIZE = 8000 # number of words in vocabulary
-STEP = 7
+VOCAB_SIZE = 5000 # number of words in vocabulary
+STEP = 3
 
 def _build_rnn():
     print('Building model...')

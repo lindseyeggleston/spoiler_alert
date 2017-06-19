@@ -3,6 +3,7 @@ import os
 from collections import Counter
 from nltk.tokenize import word_tokenize
 import re
+import glob
 
 def file_to_text(filepath):
     '''
@@ -20,12 +21,23 @@ def file_to_text(filepath):
         with open(filepath) as f:
             text = f.read()
     elif os.path.isdir(filepath):
-        with open(filepath + '/*.txt') as f:
-            text = t.read()
+        text = ''
+        for filename in glob.glob(filepath.strip('/') + '/*.txt')
+            text += filename.read()
     return text
 
 def tokenize_text(text):
-    # Clean text
+    '''
+    Cleans text by seperating word contractions and punctuation.
+
+    Parameter
+    ---------
+    text: STR - text corpus/corpora
+
+    Returns
+    -------
+    list of words/tokens
+    '''
     text = re.sub("’s", " ’s", text)
     text = re.sub("’m", " am", text)
     text = re.sub("’ve", " have", text)
@@ -33,8 +45,8 @@ def tokenize_text(text):
     text = re.sub("’d", " ’d", text)
     text = re.sub("’ll", " will ", text)
     text = re.sub("n’t", " not ", text)
-    text = text.replace('”', ' QUOTE_TOKEN')
-    text = text.replace('“', 'QUOTE_TOKEN ')
+    text = text.replace('”', ' END_QUOTE')
+    text = text.replace('“', 'START_QUOTE ')
     text = re.sub("’s", " ’s", text)
     text = re.sub("…", "", text)
 
@@ -63,7 +75,6 @@ def text_to_vocab(text, vocab_size=8000):
     if len(word_freq) < vocab_size:
         print('There are {0} unique words in this text. Choose a different vocab \
                 size.'.format(len(word_freq)))
-        break
     elif len(word_freq) == vocab_size:
         n_freq_words = set([word[0] for word in word_freq.most_common(vocab_size)])
         unknown_tokens = None
@@ -139,11 +150,3 @@ def count_characters(text):
     print('This text contains {0} distinct characters'.format(len(char_set)))
     char_dict = {char:i for i,char in enumerate(sorted(list(char_set)))}
     return char_dict
-
-
-if __name__ == '__main__':
-    with open('../../soif_data/characters/cersei.txt') as f:
-        text = f.read()
-    char_dict = count_characters(text)
-    sequence = [char for char in text]
-    X, y, epoch = create_minibatch(sequence, 200, 30, 10, len(char_dict))
