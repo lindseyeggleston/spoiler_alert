@@ -2,6 +2,7 @@ import numpy as np
 import os
 from collections import Counter
 from nltk.tokenize import word_tokenize
+from nltk.util import ngrams
 import re
 import glob
 
