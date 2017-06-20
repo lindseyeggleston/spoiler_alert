@@ -19,11 +19,14 @@ SEQ_LENGTH = 30
 DROPOUT = 0.2
 BATCH_SIZE = 300
 LEARNING_RATE = 0.001
-INTERNAL_SIZE = 512
+INTERNAL_SIZE = 100 # number of nodes in each hidden layer
 VOCAB_SIZE = 5000 # number of words in vocabulary
 STEP = 3
 
 def _build_rnn():
+    '''
+    Builds RNN model framework according to above hyperparameter specifications
+    '''
     print('Building model...')
     rnn = Sequential([      # linear stack of layers
         LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(SEQ_LENGTH, VOCAB_SIZE)), # return_sequences = True b/c many-to-many model
@@ -40,22 +43,37 @@ def _build_rnn():
 
     return rnn
 
-def _vectorize_text(text, vocab_dict):
+def _vectorize_text(text, word_indices, seq_length=SEQ_LENGTH, step=STEP):
+    '''
+    Vectorizes text string into sparse index matric
+
+    Parameters
+    ----------
+    text: STR - text corpus/corpora
+    word_indices: DICT - a dictionary of vocabulary with words as the keys and
+        their indices as the values
+    seq_length: INT - length of input sequence
+    step: INT - step size
+
+    Returns
+    -------
+    input matric, Xo, and its corresponding target values, yo
+    '''
     print('Vectorizing text...')
 
     sequences = []
     next_words = []
 
-    for i in range(0, len(text)-SEQ_LENGTH, STEP):
-        sequences.append(text[i: i + SEQ_LENGTH])
-        next_words.append(text[i + SEQ_LENGTH])
+    for i in range(0, len(text)-seq_length, step):
+        sequences.append(text[i: i + seq_length])
+        next_words.append(text[i + seq_length])
 
-    vec = np.vectorize(lambda x: vocab_dict[x])
+    vec = np.vectorize(lambda x: word_indices[x])
     X = vec(np.array(sequences))
     y = vec(np.array(next_words))
 
-    Xo = np.zeros((X.shape[0], X.shape[1], VOCAB_SIZE), dtype=np.int8)
-    yo = np.zeros((y.shape[0], VOCAB_SIZE), dtype=np.int8)
+    Xo = np.zeros((X.shape[0], X.shape[1], len(word_indices)), dtype=np.int8)
+    yo = np.zeros((y.shape[0], len(word_indices)), dtype=np.int8)
 
     for i, row in enumerate(X):
         for j, val in enumerate(row):
@@ -92,6 +110,7 @@ def train_rnn(text, save_as):
     name = '../model/{0}.h5'.format(save_as)
     rnn.save_weights(name, overwrite=True)
     rnn.save(name, overwrite=True)
+    return rnn
 
 
 

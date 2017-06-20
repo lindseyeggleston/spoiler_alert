@@ -49,7 +49,6 @@ def tokenize_text(text):
     text = re.sub("n’t", " not ", text)
     text = text.replace('”', ' END_QUOTE')
     text = text.replace('“', 'START_QUOTE ')
-    text = re.sub("’s", " ’s", text)
     text = re.sub("…", "", text)
 
     # Tokenize text
@@ -73,12 +72,12 @@ def text_to_vocab(text, vocab_size=8000):
     '''
     # Find frequent words
     word_freq = Counter(text)
-    print(len(word_freq))
-    if len(word_freq) < vocab_size:
-        print('There are {0} unique words in this text. Choose a different vocab size.'\
-                .format(len(word_freq)))
-    elif len(word_freq) == vocab_size:
+    assert (len(word_freq) >= vocab_size), \
+        'There are {0} unique words in this text. Choose a different vocab size.'\
+        .format(len(word_freq)))
+    if len(word_freq) == vocab_size:
         n_freq_words = set([word[0] for word in word_freq.most_common(vocab_size)])
+        vocab = {word:i for i, word in enumerate(n_freq_words)}
         unknown_tokens = None
     else:
         n_freq_words = {word[0]:i for i,word in enumerate(sorted(word_freq\
@@ -92,7 +91,7 @@ def text_to_vocab(text, vocab_size=8000):
                 unknown_tokens.add(word)
                 text[i] = 'UNKNOWN_TOKEN'
 
-    vocab = {word:i for i, word in enumerate(n_freq_words)}
+        vocab = {word:i for i, word in enumerate(n_freq_words)}
 
     return text, vocab, unknown_tokens
 
