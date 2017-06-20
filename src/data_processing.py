@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from collections import Counter
+from collections import Counter, defaultdict
 from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
 import re
@@ -55,63 +55,76 @@ def tokenize_text(text):
     tokens = word_tokenize(text)
     return tokens
 
-def text_to_vocab(text, vocab_size=8000):
+def text_to_vocab(tokens, vocab_size=8000):
     '''
     Learns the vocabulary within a text and refines the length to the most
     frequently used words while setting all else to UNKNOWN_TOKEN.
 
     Parameters:
     -----------
-    text: ARRAY/LIST - text corpus/corpora
-    vocab_size: INT - num of words in vocab
+    tokens: ARRAY/LIST - text corpus/corpora
+    vocab_size: INT - num of words in vocabulary
 
     Returns:
     --------
-    a refined text (iterable) with a vocab dictionary of specified length if
-    vocab_size not None
+    a refined text (iterable), a word_indices (or vocab) dictionary of
+    specified length, a dictionary of unknown_tokens and words that precede them
     '''
     # Find frequent words
-    word_freq = Counter(text)
+    word_freq = Counter(tokens)
     assert (len(word_freq) >= vocab_size), \
-        'There are {0} unique words in this text. Choose a different vocab size.'\
-        .format(len(word_freq)))
+            'There are {0} unique words in this text. Choose a smaller vocab \
+            size.'.format(len(word_freq))
     if len(word_freq) == vocab_size:
-        n_freq_words = set([word[0] for word in word_freq.most_common(vocab_size)])
-        vocab = {word:i for i, word in enumerate(n_freq_words)}
-        unknown_tokens = None
+        precedes_unknown_token = dict()
+        word_indices = {word[0]:i for i, word in enumerate(freq_words)}
     else:
-        n_freq_words = {word[0]:i for i,word in enumerate(sorted(word_freq\
-                .most_common(vocab_size-1)))}
+        word_indices = {word[0]:i for i,word in enumerate(sorted(word_freq\
+            .most_common(vocab_size-1)))}
+        tokens, precedes_unknown_token = _create_unknown_token_dict(tokens, \
+            word_indices)
 
-        # convert all words not in refined vocab to 'UNKNOWN_TOKEN'
-        n_freq_words['UNKNOWN_TOKEN'] = vocab_size - 1
-        unknown_tokens = set([])
-        for i, word in enumerate(text):
-            if word not in n_freq_words.keys():
-                unknown_tokens.add(word)
-                text[i] = 'UNKNOWN_TOKEN'
+    return tokens, word_indices, precedes_unknown_token
 
-        vocab = {word:i for i, word in enumerate(n_freq_words)}
+def _create_unknown_token_dict(tokens, word_indices):
+    '''
+    Constructs a dictionary for referencing unknown tokens where keys are words
+    that precede unknown tokens in a text and values are the subsequent unknown
+    tokens then replaces unknown tokens with 'UNKNOWN_TOKEN'
 
-    return text, vocab, unknown_tokens
+    Parameters
+    ----------
+    tokens: LIST/ARRAY - iterable that contains tokens from a text corpus
+    word_indices: DICT - vocabulary dictionary where keys are words and values
+        are indices
 
+    Returns
+    -------
+    a dictionary and refined token iterable
+    '''
+    precedes_unknown_token = defaultdict(list)
+    for i, token in enumerate(tokens):
+        if token not in word_indices:
+            precedes_unknown_token[tokens[i-1]] += token
+            tokens[i] = 'UNKNOWN_TOKEN'
+    return precedes_unknown_token
 
-def create_minibatch(text, batch_size, seq_length, n_epochs, vocab):
+def create_minibatch(text, batch_size, seq_length, n_epochs, word_indices):
     '''
     Generates mini-batches of data to be processed within the recurrent neural
     network
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     text: LIST - text corpus
     batch_size: INT - size of batch
     seq_length: INT - length of sequence
     n_epochs: INT - num of epochs for training rnn
-    vocab: DICT - refined vocab dictionary where keys are words and values are
-        indices
+    word_indices: DICT - refined vocab dictionary where keys are words and values
+        are indices
 
-    Returns:
-    --------
+    Returns
+    -------
     yields input matrix X for a single batch, expected output y, and the current
     epoch
     '''
