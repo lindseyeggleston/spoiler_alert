@@ -2,13 +2,16 @@ import h5py
 import numpy as np
 import data_processing as dp
 from keras_rnn import _vectorize_text
+from nltk.tokenize import word_tokenize
+from keras.models import load_model
+import argv
 
 BATCH_SIZE = 1
 SEQ_LENGTH = 30
 STEP = 1
-OUTPUT_LEN = 50
+OUTPUT_LEN = 30
 
-def tokens_to_text(tokens, indices_word):
+def tokens_to_text(tokens, indices_word, precedes_unknown_token):
     '''
     Converts predicted token sequence into text.
 
@@ -17,6 +20,8 @@ def tokens_to_text(tokens, indices_word):
     tokens: ARRAY/LIST - iterable of predicted token indices
     indices_word: DICT - dictionary where keys are word indices and values are
         words in text vocabulary
+    precedes_unknown_token: DICT - dictionary of unknown tokens where keys are
+        preceding words and values are lists of subsequent unknown tokens
 
     Returns
     -------
@@ -31,13 +36,35 @@ def tokens_to_text(tokens, indices_word):
 
     return text
 
-def test_rnn(model, text, word_indices, batch_size=BATCH_SIZE):
+def load_model_and_dicts(model_path, vocab_path, unknown_path):
+    '''
+    Loads trained model from .h5 file and unpickles word_indices dictionary and
+    precedes_unknown_token dictionary.
+
+    Parameters
+    ----------
+    model_path: STR - filepath to saved trained model
+    vocab_path: STR - filepath to word_indices pickle
+    unknown_path: STR - filepath to precedes_unknown_token pickle
+
+    Returns
+    -------
+    trained rnn model, word_indices dict, and precedes_unknown_token dict
+    '''
+    rnn = load_model(model_path)
+    with open(vocab_path, 'rb') as f:
+        word_indices = pickle.load(f)
+    with open(unknown_path, 'rb') as f:
+        unknown_path = pickle.load(f)
+    return rnn, word_indices, precedes_unknown_token
+
+def test_rnn(model_path, text, word_indices, batch_size=BATCH_SIZE):
     '''
     Compares the generated text prediction to known subsequent text
 
     Parameters
     ----------
-    model: fitted/trained keras RNN model
+    model_path: filepath to fitted/trained keras RNN model saved as .h5
     text: STR - text to predict on
     word_indices: DICT - vocab dictionary for training data where keys are words
         (str) and values are indices (int)
@@ -47,12 +74,14 @@ def test_rnn(model, text, word_indices, batch_size=BATCH_SIZE):
     -------
     None
     '''
+    rnn = load_model(model_path)
     indices_word = dict((v, k) for k, v in word_indices.items())
 
     tokens = dp.tokenize_text(text)
     X, y = _vectorize_text(tokens, word_indices, seq_length=SEQ_LENGTH, step=STEP)
     predict = model.predict(X, batch_size=batch_size)
-    predict_, y_ = tokens_to_text(predict), tokens_to_text(y)
+    predict_ = tokens_to_text(predict, indices_word, precedes_unknown_token)
+    y_ = tokens_to_text(y, indices_word, precedes_unknown_token)
 
     print('\nActual text')
     print(y_)
@@ -82,15 +111,23 @@ def generate_one_prediction(model, text, word_indices, output_len=OUTPUT_LEN, ba
     vec = np.vectorize(lambda x: word_indices[x])
     tokens_ = list(vec(np.array(tokens)))
 
-    predictions = []
+    predictions = np.zeros((5,30))
     for i in range(output_len):
         X = tokens_[i: i+SEQ_LENGTH]
         Xo = np.zeros((1,SEQ_LENGTH, 5000))
         for j, val in enumerate(X):
             Xo[0,j,val] = 1
         predict = model.predict_on_batch(Xo)
-        predictions.append(np.argmax(predict))
-        tokens_.append(np.argmax(predict))
+        top_5 = np.argsort(predict)[-5::-1]
+        predictions[i] = top_5
+        r = np.random.randint(5)
+        tokens_.append(predictions[i,r])
 
-    text = tokens_to_text(predictions, indices_word) + "…"
-    return text
+    vec2 = np.vectorize(lambda x: indices_word[x])
+    predict_ = vec2(predictions)
+    return predict_
+
+if __name__ == '__main__':
+    _, model_path, vocab_path, unknown_path = argv
+    rnn, word_indices, precedes_unknown_token = load_model_and_dicts(model_path,\
+            vocab_path, unknown_path)
