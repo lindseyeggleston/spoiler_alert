@@ -3,7 +3,7 @@ This script takes 2 additional arguments and runs like so:
     $ python keras_rnn.py filepath save_as
 '''
 
-from keras.models import Sequential
+from keras.models import Sequential, model_from_json
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
@@ -12,6 +12,7 @@ from keras.utils.data_utils import get_file
 import numpy as np
 from sys import argv
 import data_processing as dp
+import pickle
 
 # model hyper parameters
 N_EPOCHS = 10
@@ -97,7 +98,7 @@ def train_rnn(text, save_as):
     None
     '''
     tokens = dp.tokenize_text(text)
-    tokens, word_indices, unknown_tokens = dp.text_to_vocab(tokens, vocab_size=VOCAB_SIZE)
+    tokens, word_indices, precedes_unknown_token = dp.text_to_vocab(tokens, vocab_size=VOCAB_SIZE)
     indices_word = dict((v,k) for k,v in word_indices.items())
 
     X, y = _vectorize_text(tokens, word_indices)
@@ -107,8 +108,12 @@ def train_rnn(text, save_as):
     print('Training...')
     rnn.fit(X, y, batch_size=BATCH_SIZE, epochs=N_EPOCHS)
 
-    name = '../model/{0}.h5'.format(save_as)
-    rnn.save_weights(name, overwrite=True)
+    name = '../model/{0}'.format(save_as)
+    with open(name + '_vocab.pkl', 'wb') as f:
+        pickle.dump(word_indices, f)
+    with open(name + '_unknown.pkl', 'wb') as f:
+        pickle.dump(precedes_unknown_token, f)
+    rnn.save_weights(name + '.h5', overwrite=True)
     rnn.save(name, overwrite=True)
     return rnn
 
