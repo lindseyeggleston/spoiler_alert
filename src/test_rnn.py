@@ -4,7 +4,7 @@ import data_processing as dp
 from keras_rnn import _vectorize_text
 from nltk.tokenize import word_tokenize
 from keras.models import load_model
-import argv
+from sys import argv
 
 BATCH_SIZE = 1
 SEQ_LENGTH = 30

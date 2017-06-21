@@ -45,8 +45,9 @@ def tokenize_text(text):
     text = re.sub("’ve", " have", text)
     text = re.sub("’re", " are", text)
     text = re.sub("’d", " ’d", text)
-    text = re.sub("’ll", " will ", text)
-    text = re.sub("n’t", " not ", text)
+    text = re.sub("’ll", " will", text)
+    text = re.sub("n’t", " not", text)
+    text = re.sub("’em", " them", text)
     text = text.replace('”', ' END_QUOTE')
     text = text.replace('“', 'START_QUOTE ')
     text = re.sub("…", "", text)
@@ -73,16 +74,15 @@ def text_to_vocab(tokens, vocab_size=8000):
     # Find frequent words
     word_freq = Counter(tokens)
     assert (len(word_freq) >= vocab_size), \
-            'There are {0} unique words in this text. Choose a smaller vocab \
-            size.'.format(len(word_freq))
+            'There are {0} unique words in this text. Choose a smaller vocab size.'\
+            .format(len(word_freq))
     if len(word_freq) == vocab_size:
         precedes_unknown_token = dict()
-        word_indices = {word[0]:i for i, word in enumerate(freq_words)}
+        word_indices = {word:i for i, word in enumerate(word_freq)}
     else:
         word_indices = {word[0]:i for i,word in enumerate(sorted(word_freq\
             .most_common(vocab_size-1)))}
-        tokens, precedes_unknown_token = _create_unknown_token_dict(tokens, \
-            word_indices)
+        tokens, precedes_unknown_token = _create_unknown_token_dict(tokens, word_indices)
 
     return tokens, word_indices, precedes_unknown_token
 
@@ -105,9 +105,9 @@ def _create_unknown_token_dict(tokens, word_indices):
     precedes_unknown_token = defaultdict(list)
     for i, token in enumerate(tokens):
         if token not in word_indices:
-            precedes_unknown_token[tokens[i-1]] += token
+            precedes_unknown_token[tokens[i-1]] += [token]
             tokens[i] = 'UNKNOWN_TOKEN'
-    return precedes_unknown_token
+    return tokens, precedes_unknown_token
 
 def create_minibatch(text, batch_size, seq_length, n_epochs, word_indices):
     '''
