@@ -1,4 +1,4 @@
-# Spoiler Alert!
+![alt_text](https://github.com/lindseyeggleston/spoiler_alert/flask_app/static/images/spoiler_alert_banner.png)
 
 ### Project Overview
 Spoiler Alert in a natural language text generator that produces new text for the Songs of Ice and Fire book series. It employs a recurrent neural network (RNN) with long short-term memory (LSTM) architecture in each hidden layer. The RNN trained on the novels written by George R. R. Martin to learn vocabulary specific to the books as well as mimic the author's style of writing. Initially, the model used a character-by-character prediction on the full corpora. To increase the length of predictions and to improve sentence structure, a later version of the model incorporated word-by-word prediction.
