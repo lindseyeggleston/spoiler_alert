@@ -68,6 +68,20 @@ def train_neural_network(X, n_epochs=N_EPOCHS):
     Y_hat = tf.argmax(Yo_hat, 1)
     Y_hat = tf.reshape(Y_hat, [batchsize, -1], name="Y_hat")
 
+    loss = tf.nn.softmax_cross_entropy_with_logits(logits=Ylogits, labels=Yflat_)
+    loss = tf.reshape(loss, [batchsize, -1])
+    Yo = tf.nn.softmax(Ylogits, name='Yo')
+    Y = tf.argmax(Yo, 1)
+    Y = tf.reshape(Y, [batchsize, -1], name="Y")
+    train_step = tf.train.AdamOptimizer(lr).minimize(loss)
+
+    seqloss = tf.reduce_mean(loss, 1)
+    batchloss = tf.reduce_mean(seqloss)
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(Y_, tf.cast(Y, tf.uint8)), tf.float32))
+    loss_summary = tf.summary.scalar("batch_loss", batchloss)
+    acc_summary = tf.summary.scalar("batch_accuracy", accuracy)
+    summaries = tf.summary.merge([loss_summary, acc_summary])
+
     print('Training...')
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
