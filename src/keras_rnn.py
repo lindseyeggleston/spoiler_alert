@@ -20,7 +20,7 @@ SEQ_LENGTH = 30
 DROPOUT = 0.2
 BATCH_SIZE = 300
 LEARNING_RATE = 0.001
-INTERNAL_SIZE = 100 # number of nodes in each hidden layer
+INTERNAL_SIZE = 512 # number of nodes in each hidden layer
 VOCAB_SIZE = 5000 # number of words in vocabulary
 STEP = 3
 
@@ -30,6 +30,7 @@ def _build_rnn():
     '''
     print('Building model...')
     rnn = Sequential([      # linear stack of layers
+        Embedding(VOCAB_SIZE, INTERNAL_SIZE, inpute_length=SEQ_LENGTH)
         LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(SEQ_LENGTH, VOCAB_SIZE)), # return_sequences = True b/c many-to-many model
         Dropout(DROPOUT),
         LSTM(INTERNAL_SIZE, return_sequences=True),
@@ -39,7 +40,7 @@ def _build_rnn():
         Dense(VOCAB_SIZE),
         Activation('softmax')])
 
-    optimizer = Adam(lr=LEARNING_RATE)
+    optimizer = Adam(lr=LEARNING_RATE, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
     rnn.compile(optimizer=optimizer, loss='categorical_crossentropy')
 
     return rnn
@@ -73,15 +74,7 @@ def _vectorize_text(text, word_indices, seq_length=SEQ_LENGTH, step=STEP):
     X = vec(np.array(sequences))
     y = vec(np.array(next_words))
 
-    Xo = np.zeros((X.shape[0], X.shape[1], len(word_indices)), dtype=np.int8)
-    yo = np.zeros((y.shape[0], len(word_indices)), dtype=np.int8)
-
-    for i, row in enumerate(X):
-        for j, val in enumerate(row):
-            Xo[i, j, val] = 1
-        yo[i, y[i]] = 1
-
-    return Xo, yo
+    return X, y
 
 def train_rnn(text, save_as):
     '''
