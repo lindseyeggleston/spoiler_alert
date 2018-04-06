@@ -37,11 +37,13 @@ Stage 4: Test Model and Predict
 ### Run the code
 If your text file is anywhere as large as mine is, I recommend using a GPU.  
 
-To run train the model:
-`$ python filepath save_as`  
+To run train the model:  
+`$ python train_rnn.py filepath save_as`  
+-or-  
+`$ python train_lm.py filepath save_as`  
 Filepath is the path to the training txt file or folder and save_as is the name under which the trained model, vocabulary, and unknown tokens dictionary will be saved. This process will clean the data before it runs through the model.
 
-To generate new text:
+To generate new text:  
 `$ python model_path vocab_path unknown_token_path`  
 The parameters are the filepaths to the saved trained model, the vocabulary dictionary, and the unknown tokens dictionary.
 
