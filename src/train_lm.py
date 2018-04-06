@@ -1,9 +1,12 @@
+import h5py
 import argparse as ap
 from bidirectional_lm import BiLM
 
 
 def parse_arguments():
     parser = ap.ArgumentParser()
+    parser.add_argument("--data_file", required=True)
+    parser.add_argument("--save_as", required=True)
     parser.add_argument("-n", "--neurons", type=check_positive,
                         help="number of neurons in every hidden layer")
     parser.add_argument("-b", "--batchsize", type=check_positive,  default=256,
@@ -38,8 +41,17 @@ def check_percentage(arg):
         raise ap.ArgumentTypeError("Value should be between 0 and 1")
     return value
 
+
+# TODO: add h5 file reader
+def read_data_from_file(filepath):
+    pass
+
+
 if __name__ == '__main__':
     args = parse_args()
     model = BiLM(n_neurons=args.neurons, max_seq_len=args.max_seq_len,
                  embed_size=args.embed_size, vocab_size=args.vocab_size,
                  dropout=args.dropout, alpha=args.alpha)
+    # TODO: add training command
+    # TODO: incorporate TensorBoard visualizations
+    # TODO: add save_as
