@@ -6,6 +6,7 @@ This script takes 3 additional arguments and runs like so:
 from sys import argv
 import boto3
 
+
 def to_bucket(f, bucket, write_name):
     '''
     Write files to s3 bucket.

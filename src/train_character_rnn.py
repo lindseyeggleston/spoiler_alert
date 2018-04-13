@@ -8,10 +8,10 @@ import data_processing as dp
 import os
 
 N_EPOCHS = 10
-SEQ_LENGTH = 30 # length of input sequence
+SEQ_LENGTH = 30  # length of input sequence
 BATCH_SIZE = 300
-INTERNAL_SIZE = 512 # number of nodes in each hidden layer
-DROPOUT = 0.2 # percent of data to dropout at each layer
+INTERNAL_SIZE = 512  # number of nodes in each hidden layer
+DROPOUT = 0.2  # percent of data to dropout at each layer
 LEARNING_RATE = 0.001
 
 
@@ -45,8 +45,8 @@ def train_rnn(text):
     # Mini-batch stocastic
     print('Training...')
     text_lst = [char for char in text]
-    for X, y, epoch in dp.create_minibatch(text_lst, BATCH_SIZE, SEQ_LENGTH, \
-            N_EPOCHS, char_index):
+    for X, y, epoch in dp.create_minibatch(text_lst, BATCH_SIZE, SEQ_LENGTH,
+                                           N_EPOCHS, char_index):
         funct = np.vectorize(dp.text_to_indices)
         X, y = funct(X, char_index), funct(y, char_index)
         rnn.train_on_batch(X, y)
@@ -62,6 +62,7 @@ def train_rnn(text):
         print('Your model has been pickled')
 
     return None
+
 
 if __name__ == '__main__':
     text = dp.file_to_text('../../soif_data/characters/cersei.txt')

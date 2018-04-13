@@ -1,6 +1,6 @@
 from keras.models import Model
 from keras.layers import Input, Permute, Reshape, Dense, Lambda, RepeatVector
-from keras.layers import GRU, Bidirectional, Dense, Dropout, GlobalMaxPool1D
+from keras.layers import GRU, LSTM, Bidirectional, Dropout, GlobalMaxPool1D
 from keras.layers import BatchNormalization, multiply, Embedding
 from keras.optimizers import Adam
 import keras.backend as K
@@ -58,7 +58,7 @@ class BiLM():
         x = self.attention_3d_block(x, self.max_seq_len,
                                self.single_attention, self.n)
         self.n += 1  # this is needed so that each layer has a unique name
-        x = Bidirectional(GRU(self.n_neurons, dropout=self.dropout,
+        x = Bidirectional(GRU(self.n_neurons, dropout=self.dropout,  # test GRU vs LSTM
                               return_sequences=return_sequences))(x)
         return BatchNormalization(axis=-1)(x)
 

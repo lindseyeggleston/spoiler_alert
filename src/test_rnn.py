@@ -11,6 +11,7 @@ SEQ_LENGTH = 30
 STEP = 1
 OUTPUT_LEN = 30
 
+
 def tokens_to_text(tokens, indices_word, precedes_unknown_token):
     '''
     Converts predicted token sequence into text.
@@ -36,6 +37,7 @@ def tokens_to_text(tokens, indices_word, precedes_unknown_token):
 
     return text
 
+
 def load_model_and_dicts(model_path, vocab_path, unknown_path):
     '''
     Loads trained model from .h5 file and unpickles word_indices dictionary and
@@ -58,6 +60,7 @@ def load_model_and_dicts(model_path, vocab_path, unknown_path):
         unknown_path = pickle.load(f)
     return rnn, word_indices, precedes_unknown_token
 
+
 def test_rnn(model_path, text, word_indices, batch_size=BATCH_SIZE):
     '''
     Compares the generated text prediction to known subsequent text
@@ -66,8 +69,8 @@ def test_rnn(model_path, text, word_indices, batch_size=BATCH_SIZE):
     ----------
     model_path: filepath to fitted/trained keras RNN model saved as .h5
     text: STR - text to predict on
-    word_indices: DICT - vocab dictionary for training data where keys are words
-        (str) and values are indices (int)
+    word_indices: DICT - vocab dictionary for training data where keys are
+        words (str) and values are indices (int)
     batch_size: INT - batch size for updating weights
 
     Returns
@@ -78,7 +81,8 @@ def test_rnn(model_path, text, word_indices, batch_size=BATCH_SIZE):
     indices_word = dict((v, k) for k, v in word_indices.items())
 
     tokens = dp.tokenize_text(text)
-    X, y = _vectorize_text(tokens, word_indices, seq_length=SEQ_LENGTH, step=STEP)
+    X, y = _vectorize_text(tokens, word_indices, seq_length=SEQ_LENGTH,
+                           step=STEP)
     predict = model.predict(X, batch_size=batch_size)
     predict_ = tokens_to_text(predict, indices_word, precedes_unknown_token)
     y_ = tokens_to_text(y, indices_word, precedes_unknown_token)
@@ -89,7 +93,9 @@ def test_rnn(model_path, text, word_indices, batch_size=BATCH_SIZE):
     print('\nNew text')
     print(predict_)
 
-def generate_one_prediction(model, text, word_indices, output_len=OUTPUT_LEN, batch_size=BATCH_SIZE):
+
+def generate_one_prediction(model, text, word_indices, output_len=OUTPUT_LEN,
+                            batch_size=BATCH_SIZE):
     '''
     Generates new text
 
@@ -97,8 +103,8 @@ def generate_one_prediction(model, text, word_indices, output_len=OUTPUT_LEN, ba
     ----------
     model: fitted/trained keras RNN model
     text: STR - text to predict on
-    word_indices: DICT - vocab dictionary for training data where keys are words
-        (str) and values are indices (int)
+    word_indices: DICT - vocab dictionary for training data where keys are
+        words (str) and values are indices (int)
     output_len: INT - length of desired output sequence
     batch_size: INT - batch size for updating weights
 
@@ -111,23 +117,25 @@ def generate_one_prediction(model, text, word_indices, output_len=OUTPUT_LEN, ba
     vec = np.vectorize(lambda x: word_indices[x])
     tokens_ = list(vec(np.array(tokens)))
 
-    predictions = np.zeros((5,30))
+    predictions = np.zeros((5, 30))
     for i in range(output_len):
-        X = tokens_[i: i+SEQ_LENGTH]
-        Xo = np.zeros((1,SEQ_LENGTH, 5000))
+        X = tokens_[i: i + SEQ_LENGTH]
+        Xo = np.zeros((1, SEQ_LENGTH, 5000))
         for j, val in enumerate(X):
-            Xo[0,j,val] = 1
+            Xo[0, j, val] = 1
         predict = model.predict_on_batch(Xo)
         top_5 = np.argsort(predict)[-5::-1]
         predictions[i] = top_5
         r = np.random.randint(5)
-        tokens_.append(predictions[i,r])
+        tokens_.append(predictions[i, r])
 
     vec2 = np.vectorize(lambda x: indices_word[x])
     predict_ = vec2(predictions)
     return predict_
 
+
 if __name__ == '__main__':
     _, model_path, vocab_path, unknown_path = argv
-    rnn, word_indices, precedes_unknown_token = load_model_and_dicts(model_path,\
-            vocab_path, unknown_path)
+    rnn, word_idx, precedes_unk_token = load_model_and_dicts(model_path,
+                                                             vocab_path,
+                                                             unknown_path)

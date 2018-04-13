@@ -3,8 +3,8 @@ This script takes 3 additional arguments and runs like so:
     python download_bucket.py file_name bucket_name path_to_write
 '''
 from sys import argv
-
 import boto3
+
 
 def download_file(f, bucket, write_path):
     '''

@@ -1,5 +1,7 @@
 import re
 import glob
+from nltk.tokenize import word_tokenize
+
 
 def clean_text(chapter_set):
     # Edit book1
@@ -38,30 +40,33 @@ def clean_text(chapter_set):
     with open('../data/text/book5.txt', 'w') as b5:
         b5.write(new_text5)
 
+
 def remove_indentation(text):
     temp_text = text.split('\t')
-    for i,word in enumerate(temp_text):
+    for i, word in enumerate(temp_text):
         temp_text[i] = word.strip()
     new_text = ' '.join(temp_text)
     return new_text
+
 
 def add_chapter_indentation(text, chapter_set):
     for chapter_title in chapter_set:
         text = re.sub(chapter_title, '\n{0}\n'.format(chapter_title), text)
     return text
 
+
 def extract_character_chapters(character, text, alt_chapter_names=None):
     '''
-    Extracts out the text from specified character's chapters and stores it as a
-    text file named after the character. The text should first be run through
+    Extracts out the text from specified character's chapters and stores it as
+    a text file named after the character. The text should first be run through
     replace_indentation() for uniform formatting.
 
     Parameters
     ----------
     character: STR - character name
     text: STR - text corpus or corpora
-    alt_chapter_names: SET - (optional) set of alternative chapter names for the
-        character and should also contain character name. All chapter names
+    alt_chapter_names: SET - (optional) set of alternative chapter names for
+        the character and should also contain character name. All chapter names
         should be in all caps.
 
     Returns
@@ -73,7 +78,7 @@ def extract_character_chapters(character, text, alt_chapter_names=None):
     character_str = chapter_title + '\n'
 
     for i, line in enumerate(chapters):
-        if alt_chapter_names != None:
+        if alt_chapter_names is not None:
             if line in alt_chapter_names:
                 character_str += chapters[i+1] + '\n'
         else:
@@ -82,6 +87,7 @@ def extract_character_chapters(character, text, alt_chapter_names=None):
 
     with open('{0}.txt'.format(character), 'w+') as f:
         f.write(character_str)
+
 
 def chapter_content(chapter_title, book_filepath, n_characters=1000):
     '''
@@ -99,27 +105,45 @@ def chapter_content(chapter_title, book_filepath, n_characters=1000):
     '''
     with open(book_filepath) as f:
         text = f.read().split('\n')
-    for i,line in enumerate(text):
+    for i, line in enumerate(text):
         if re.match(line, chapter_title):
             print(line)
             print(text[i+1][:1000])
 
 
-if __name__ == '__main__':
+def chapter_indexing(book, chapter_names):
+    text = ''
+    with open(book) as b:
+        for line in b:
+            text += re.sub('-', ' ', line)
+    prologue_idx = [i for i, line in enumerate(text)
+                    if re.search('PROLOGUE\n', line)]
+    appendix_idx = [i for i, line in enumerate(text)
+                    if re.search('APPENDIX\n', line)]
+    text = text[prologue_idx[0]: appendix_idx[0]]
 
+
+if __name__ == '__main__':
     # chapter titles for all 5 books
-    chapter_set = set(["TYRION", "DAENERYS", "JON", "BRAN", "THE BLIND GIRL",\
-        "DAVOS", "REEK", "THE WINDBLOWN", "THE WAYWARD BRIDE", "THE WATCHER",\
-        "MELISANDRE", "THE PRINCE OF WINTERFELL", "THE TURNCLOAK", "THEON",\
-        "THE KING’S PRIZE", "A GHOST IN WINTERFELL", "THE LOST LORD", "JAIME",\
-        "THE QUEENSGUARD", "THE IRON SUITOR", "THE DISCARDED KNIGHT", "CERSEI",\
-        "VICTARION", "THE SPURNED SUITOR", "THE GRIFFIN REBORN", "THE SACRIFICE",\
-        "THE KINGBREAKER", "THE DRAGONTAMER", "THE UGLY LITTLE GIRL", "THE QUEEN'S HAND"\
-        "CATELYN", "THE PROPHET", "THE CAPTAIN OF GUARDS", "ARYA", "SANSA", "PROLOGUE",\
-        "BRIENNE", "THE KRAKEN'S DAUGHTER", "THE SOILED KNIGHT", "SAMWELL", "JAIME",\
-        "THE IRON CAPTAIN", "THE DROWNED MAN", "THE QUEENMAKER", "ALAYNE", \
-        "THE REAVER", "CAT OF THE CANALS", "THE PRINCESS IN THE TOWER", "EDDARD",\
-        "EPILOGUE", "THE MERCHANT'S MAN"])
+    chapter_set = set(["TYRION\n", "DAENERYS\n", "JON\n", "BRAN\n",
+                       "THE BLIND GIRL\n", "DAVOS\n", "REEK\n", "CERSEI\n",
+                       "THE WINDBLOWN\n", "THE WAYWARD BRIDE\n", "THEON\n",
+                       "THE WATCHER\n", "MELISANDRE\n", "THE SACRIFICE\n",
+                       "THE PRINCE OF WINTERFELL\n", "THE TURNCLOAK\n",
+                       "THE KING’S PRIZE\n", "A GHOST IN WINTERFELL\n",
+                       "THE LOST LORD\n", "JAIME\n", "THE QUEENSGUARD\n",
+                       "THE IRON SUITOR\n", "THE DISCARDED KNIGHT\n",
+                       "VICTARION\n", "THE SPURNED SUITOR\n", "CATELYN\n",
+                       "THE GRIFFIN REBORN\n", "THE KINGBREAKER\n", "ALAYNE\n",
+                       "THE DRAGONTAMER\n", "THE UGLY LITTLE GIRL\n", "ARYA\n",
+                       "THE PROPHET\n", "THE CAPTAIN OF GUARDS\n", "SANSA\n",
+                       "BRIENNE\n", "THE KRAKEN'S DAUGHTER\n",  "EDDARD\n",
+                       "THE SOILED KNIGHT\n", "SAMWELL\n", "EPILOGUE\n",
+                       "THE IRON CAPTAIN\n", "THE DROWNED MAN\n",
+                       "THE QUEENMAKER\n", "THE REAVER\n", "PROLOGUE\n",
+                       "CAT OF THE CANALS\n", "THE PRINCESS IN THE TOWER\n",
+                       "THE MERCHANT'S MAN\n", "THE SACRIFICE\n",
+                       "THE QUEEN'S HAND\n"])
 
     files = glob.glob('../../soif_data/text/*.txt')
     text = ''

@@ -20,9 +20,10 @@ SEQ_LENGTH = 30
 DROPOUT = 0.2
 BATCH_SIZE = 300
 LEARNING_RATE = 0.001
-INTERNAL_SIZE = 512 # number of nodes in each hidden layer
-VOCAB_SIZE = 5000 # number of words in vocabulary
+INTERNAL_SIZE = 512  # number of nodes in each hidden layer
+VOCAB_SIZE = 5000  # number of words in vocabulary
 STEP = 3
+
 
 def _build_rnn():
     '''
@@ -30,8 +31,9 @@ def _build_rnn():
     '''
     print('Building model...')
     rnn = Sequential([      # linear stack of layers
-        Embedding(VOCAB_SIZE, INTERNAL_SIZE, inpute_length=SEQ_LENGTH)
-        LSTM(INTERNAL_SIZE, return_sequences=True, input_shape=(SEQ_LENGTH, VOCAB_SIZE)), # return_sequences = True b/c many-to-many model
+        Embedding(VOCAB_SIZE, INTERNAL_SIZE, inpute_length=SEQ_LENGTH),
+        LSTM(INTERNAL_SIZE, return_sequences=True,   # True b/c many-to-many
+             input_shape=(SEQ_LENGTH, VOCAB_SIZE)),
         Dropout(DROPOUT),
         LSTM(INTERNAL_SIZE, return_sequences=True),
         Dropout(DROPOUT),
@@ -40,19 +42,21 @@ def _build_rnn():
         Dense(VOCAB_SIZE),
         Activation('softmax')])
 
-    optimizer = Adam(lr=LEARNING_RATE, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+    optimizer = Adam(lr=LEARNING_RATE, beta_1=0.9, beta_2=0.999,
+                     epsilon=1e-08, decay=0.0)
     rnn.compile(optimizer=optimizer, loss='categorical_crossentropy')
 
     return rnn
 
-def _vectorize_text(text, word_indices, seq_length=SEQ_LENGTH, step=STEP):
+
+def _vectorize_text(text, word_idx, seq_length=SEQ_LENGTH, step=STEP):
     '''
     Vectorizes text string into sparse index matric
 
     Parameters
     ----------
     text: STR - text corpus/corpora
-    word_indices: DICT - a dictionary of vocabulary with words as the keys and
+    word_idx: DICT - a dictionary of vocabulary with words as the keys and
         their indices as the values
     seq_length: INT - length of input sequence
     step: INT - step size
@@ -70,16 +74,17 @@ def _vectorize_text(text, word_indices, seq_length=SEQ_LENGTH, step=STEP):
         sequences.append(text[i: i + seq_length])
         next_words.append(text[i + seq_length])
 
-    vec = np.vectorize(lambda x: word_indices[x])
+    vec = np.vectorize(lambda x: word_idx[x])
     X = vec(np.array(sequences))
     y = vec(np.array(next_words))
 
     return X, y
 
+
 def train_rnn(text, save_as):
     '''
-    Trains a word-level recurrent neural network using LSTM architecture on text
-    corpora.
+    Trains a word-level recurrent neural network using LSTM architecture on
+    text corpora.
 
     Parameters
     ----------
@@ -91,10 +96,10 @@ def train_rnn(text, save_as):
     None
     '''
     tokens = dp.tokenize_text(text)
-    tokens, word_indices, precedes_unknown_token = dp.text_to_vocab(tokens, vocab_size=VOCAB_SIZE)
-    indices_word = dict((v,k) for k,v in word_indices.items())
+    tokens, word_idx, precedes_unk_token = dp.text_to_vocab(tokens, vocab_size=VOCAB_SIZE)
+    idx_word = dict((v, k) for k, v in word_idx.items())
 
-    X, y = _vectorize_text(tokens, word_indices)
+    X, y = _vectorize_text(tokens, word_idx)
 
     rnn = _build_rnn()
 
@@ -103,13 +108,12 @@ def train_rnn(text, save_as):
 
     name = '../model/{0}'.format(save_as)
     with open(name + '_vocab.pkl', 'wb') as f:
-        pickle.dump(word_indices, f)
+        pickle.dump(word_idx, f)
     with open(name + '_unknown.pkl', 'wb') as f:
         pickle.dump(precedes_unknown_token, f)
     rnn.save_weights(name + '.h5', overwrite=True)
     rnn.save(name, overwrite=True)
     return rnn
-
 
 
 if __name__ == '__main__':

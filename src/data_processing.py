@@ -6,6 +6,7 @@ from nltk.util import ngrams
 import re
 import glob
 
+
 def file_to_text(filepath):
     '''
     Opens text files and converts them into string objects
@@ -27,6 +28,7 @@ def file_to_text(filepath):
             with open(filename) as f:
                 text += f.read()
     return text
+
 
 def tokenize_text(text):
     '''
@@ -56,6 +58,7 @@ def tokenize_text(text):
     tokens = word_tokenize(text)
     return tokens
 
+
 def text_to_vocab(tokens, vocab_size=8000):
     '''
     Learns the vocabulary within a text and refines the length to the most
@@ -69,22 +72,24 @@ def text_to_vocab(tokens, vocab_size=8000):
     Returns:
     --------
     a refined text (iterable), a word_indices (or vocab) dictionary of
-    specified length, a dictionary of unknown_tokens and words that precede them
+    specified length, a dictionary of unknown_tokens and words that precede
+    them
     '''
     # Find frequent words
     word_freq = Counter(tokens)
-    assert (len(word_freq) >= vocab_size), \
-            'There are {0} unique words in this text. Choose a smaller vocab size.'\
-            .format(len(word_freq))
+    msg = f'There are {len(word_freq)} unique words. Choose a smaller vocab.'
+    assert (len(word_freq) >= vocab_size), msg
     if len(word_freq) == vocab_size:
-        precedes_unknown_token = dict()
-        word_indices = {word:i for i, word in enumerate(word_freq)}
+        precede_unk_token = dict()
+        word_indices = {word: i for i, word in enumerate(word_freq)}
     else:
-        word_indices = {word[0]:i for i,word in enumerate(sorted(word_freq\
-            .most_common(vocab_size-1)))}
-        tokens, precedes_unknown_token = _create_unknown_token_dict(tokens, word_indices)
+        word_indices = {word[0]: i for i, word in
+                        enumerate(sorted(word_freq.most_common(vocab_size-1)))}
+        tokens, precede_unk_token = _create_unknown_token_dict(tokens,
+                                                               word_indices)
 
-    return tokens, word_indices, precedes_unknown_token
+    return tokens, word_indices, precede_unk_token
+
 
 def _create_unknown_token_dict(tokens, word_indices):
     '''
@@ -102,12 +107,13 @@ def _create_unknown_token_dict(tokens, word_indices):
     -------
     a dictionary and refined token iterable
     '''
-    precedes_unknown_token = defaultdict(list)
+    precede_unk_token = defaultdict(list)
     for i, token in enumerate(tokens):
         if token not in word_indices:
-            precedes_unknown_token[tokens[i-1]] += [token]
+            precede_unk_token[tokens[i-1]] += [token]
             tokens[i] = 'UNKNOWN_TOKEN'
-    return tokens, precedes_unknown_token
+    return tokens, precede_unk_token
+
 
 def create_minibatch(text, batch_size, seq_length, n_epochs, word_indices):
     '''
@@ -120,30 +126,33 @@ def create_minibatch(text, batch_size, seq_length, n_epochs, word_indices):
     batch_size: INT - size of batch
     seq_length: INT - length of sequence
     n_epochs: INT - num of epochs for training rnn
-    word_indices: DICT - refined vocab dictionary where keys are words and values
-        are indices
+    word_indices: DICT - refined vocab dictionary where keys are words and
+        values are indices
 
     Returns
     -------
-    yields input matrix X for a single batch, expected output y, and the current
-    epoch
+    yields input matrix X for a single batch, expected output y, and the
+    current epoch
     '''
     n_batches = (len(text) - 1) // (batch_size * seq_length)
 
     # Round and reshape data to be even with batch numbers
     round_data = n_batches * batch_size * seq_length
-    x_data = np.reshape(text[0:round_data], [batch_size, n_batches * seq_length])
-    y_data = np.reshape(text[1:round_data + 1], [batch_size, n_batches * seq_length])
+    x_data = np.reshape(text[0:round_data],
+                        [batch_size, n_batches * seq_length])
+    y_data = np.reshape(text[1:round_data + 1],
+                        [batch_size, n_batches * seq_length])
 
     for epoch in range(n_epochs):
         for batch in range(n_batches):
             X = x_data[:, seq_length * batch:seq_length * (batch + 1)]
             y = y_data[:, seq_length * batch:seq_length * (batch + 1)]
 
-            X = np.roll(X, -epoch, axis=0)# Shift text for each epoch
+            X = np.roll(X, -epoch, axis=0)  # Shift text for each epoch
             y = np.roll(y, -epoch, axis=0)
 
             yield X, y, epoch  # Generator
+
 
 def count_characters(text):
     '''
@@ -162,5 +171,5 @@ def count_characters(text):
     for char in text:
         char_set.add(char)
     print('This text contains {0} distinct characters'.format(len(char_set)))
-    char_dict = {char:i for i,char in enumerate(sorted(list(char_set)))}
+    char_dict = {char: i for i, char in enumerate(sorted(list(char_set)))}
     return char_dict
